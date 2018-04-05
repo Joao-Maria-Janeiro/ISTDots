@@ -65,6 +65,10 @@ int main( void )
     int play = 0;
     int j = 0;
     int valid, count, valid_pos = 0;
+    int square, lastXpos, lastYpos, mem_pos = 0;
+
+    int mem[STRING_SIZE][STRING_SIZE] = {{0}};
+    int validate = 0;
 
     board_pos_x = 5;
     board_pos_y = 7;
@@ -94,6 +98,9 @@ int main( void )
     //Sets the move array to all 7 before starting the game
     move_reset(board_pos_x, board_pos_y, move);
 
+    //Asks the user to press n in order to start the game
+
+
 
     while( quit == 0 )
     {
@@ -102,7 +109,7 @@ int main( void )
         {
             if( event.type == SDL_QUIT )
             {
-                    ;// quit !
+                    quit = 1;// quit !
             }
             else if ( event.type == SDL_KEYDOWN )
             {
@@ -124,39 +131,71 @@ int main( void )
                 ProcessMouseEvent(event.button.x, event.button.y, board_size_px, square_size_px, &pt_x, &pt_y);
                 printf("Button down: %d %d\n", pt_x, pt_y);
                 play = 1;
+                lastXpos = 30;
+                lastYpos = 30;
             }
             else if ( event.type == SDL_MOUSEBUTTONUP )
             {
                 ProcessMouseEvent(event.button.x, event.button.y, board_size_px, square_size_px, &pt_x, &pt_y);
                 printf("Button up: %d %d\n", pt_x, pt_y);
                 play = 2;
-                    for(i = 0; i < board_pos_x; i++){
-                    for(j = 0; j < board_pos_y; j++){
-                       printf("%d ", move[j][i]); //Tive de dar printf ao contrário pois as linhas estavam a ficar nas colunas, assim o print já está correto!
-                        }
-                        printf("\n");
-                        }
+
+//                    for(j = 0; j < board_pos_y; j++){
+//                    for(i = 0; i < board_pos_x; i++){
+//                       printf("%d ", move[i][j]); //Tive de dar printf ao contrário pois as linhas estavam a ficar nas colunas, assim o print já está correto!
+//                        }
+//                        printf("\n");
+//                        }
+//
+//                    printf("-----------------\n");
+//
+//
+//                    for(i = 0; i < mem_pos; i++){
+//                       printf("%d ", mem[i][0]);
+//                        printf("%d", mem[i][1]);
+//                        printf("\n");
+//                        }
 
                 valid = evaluate_color(board_pos_x, board_pos_y, move, &count);
-                printf("A jogada vale: %d\n", valid);
-                printf("Rebentou %d bolas\n", count);
+//                printf("A jogada vale: %d\n", valid);
+//                printf("Rebentou %d bolas\n", count);
                 valid_pos = evaluate_pos(board_pos_x, board_pos_y, move);
-                printf("A posicao vale: %d", valid_pos);
+//                printf("A posicao vale: %d", valid_pos);
                 if(valid == 0 && count >=2 && valid_pos == 0){
                     movedots(board_pos_x, board_pos_y, board, move, int_colors);
                 }
+//                printf("%d", square); // Se for quadrado retorna 0
+                if ( square == 0 && validate != 1){
+                    remove_same_color(board_pos_x, board_pos_y, board, move, int_colors);
+                    remove_inside_square(mem, mem_pos, board, int_colors);
+                }
+
                 move_reset(board_pos_x, board_pos_y, move);
+                mem_pos = 0;
+                validate = 0;
 
             }
             else if ( event.type == SDL_MOUSEMOTION )
             {
                 ProcessMouseEvent(event.button.x, event.button.y, board_size_px, square_size_px, &pt_x, &pt_y);
-                printf("Moving Mouse: %d %d\n", pt_x, pt_y);
+                //printf("Mouse: %d %d\n", pt_x, pt_y);
                 if( play == 1 ){
+                    if( lastXpos != pt_x || lastYpos != pt_y){
+                    square = square_detect(board_pos_x, board_pos_y, board, move, int_colors, pt_x, pt_y);
+//                    printf("%d", square);
                     move[pt_x][pt_y] = board[pt_x][pt_y];
                     SDL_RenderDrawLine(renderer, event.button.x, event.button.y, event.button.x+5, event.button.y +2);
                     SDL_RenderPresent(renderer);
+                    lastXpos = pt_x;
+                    lastYpos = pt_y;
+                    mem[mem_pos][0] = pt_x;
+                    mem[mem_pos][1] = pt_y;
+                    validate = square_validate(mem, mem_pos);//Se for quadrado retorna 0
+                    mem_pos++;
+                    }
+
                 }
+
 
             }
 
@@ -324,6 +363,91 @@ void movedots(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOA
     }
 }
 
+int square_detect(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOARD_POS], int move[MAX_BOARD_POS][MAX_BOARD_POS], int _colors, int pt_x, int pt_y){
+    int i, j = 0;
+
+    if( move[pt_x][pt_y] != 7){
+            return 0;
+    }
+
+return 1;
+}
+
+int square_validate( int mem[STRING_SIZE][STRING_SIZE], int mem_pos ){
+
+    if( mem[mem_pos][0] == mem[mem_pos-2][0] && mem[mem_pos][1] == mem[mem_pos-2][1] ){
+        return 1;
+    }
+return 0;
+}
+
+int remove_same_color(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOARD_POS], int move[MAX_BOARD_POS][MAX_BOARD_POS], int _colors){
+    int i, j, c,d = 0;
+    int aux = 9;
+    srand(time(NULL));
+
+    for(i = 0; i < board_pos_x; i++){
+    for(j = 0; j < board_pos_y; j++){
+        if(move[i][j] != 7){
+            if( aux == 9 ){
+                aux = move[i][j];
+            }}}}
+
+    for(i = 0; i < board_pos_x; i++){
+    for(j = 0; j < board_pos_y; j++){
+        if( board[i][j] == aux ){
+            for(d = 0; d < j; d++){
+                board[i][j-d] = board[i][j-d-1];
+            }
+            board[i][0] = (int) (rand()% (_colors));
+        }
+    }
+    }
+}
+
+void remove_inside_square( int mem[STRING_SIZE][STRING_SIZE], int mem_pos, int board[MAX_BOARD_POS][MAX_BOARD_POS], int _colors ){
+int i, j, maximum_x, maximum_y = 0;
+int minimum_x = 40;
+int minimum_y = 40;
+int d = 0;
+    for(i = 0; i < mem_pos; i++){
+        if( mem[i][0] > maximum_x){
+            maximum_x = mem[i][0];
+        }
+    }
+
+    for(i = 0; i < mem_pos; i++){
+        if( mem[i][1] > maximum_y){
+            maximum_y = mem[i][1];
+        }
+    }
+
+    for(i = 0; i < mem_pos; i++){
+        if( mem[i][0] < minimum_x){
+            minimum_x = mem[i][0];
+        }
+    }
+
+    for(i = 0; i < mem_pos; i++){
+        if( mem[i][1] < minimum_y){
+            minimum_y = mem[i][1];
+        }
+    }
+
+
+
+    for(i = minimum_x; i < maximum_x; i++){
+    for(j = minimum_y; j < maximum_y; j++){
+
+            for(d = 0; d < j; d++){
+                board[i][j-d] = board[i][j-d-1];
+            }
+            board[i][0] = (int) (rand()% (_colors));
+
+    }
+    }
+
+}
 
 /**
  * ProcessMouseEvent: gets the square pos based on the click positions !
