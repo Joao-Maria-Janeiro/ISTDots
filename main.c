@@ -69,6 +69,7 @@ int main( void )
 
     int mem[STRING_SIZE][STRING_SIZE] = {{0}};
     int validate = 0;
+    int color = 0;
 
     board_pos_x = 5;
     board_pos_y = 7;
@@ -116,9 +117,9 @@ int main( void )
                 switch ( event.key.keysym.sym )
                 {
                     case SDLK_n:
-                        // todo
+                       game_board(board, board_pos_x, board_pos_y, int_colors);
                     case SDLK_q:
-                        // todo
+                        quit = 1;
                     case SDLK_u:
                         // todo
                     default:
@@ -156,9 +157,9 @@ int main( void )
 //                        printf("\n");
 //                        }
 
-                valid = evaluate_color(board_pos_x, board_pos_y, move, &count);
+                valid = evaluate_color(board_pos_x, board_pos_y, move, &count, &color);
 //                printf("A jogada vale: %d\n", valid);
-//                printf("Rebentou %d bolas\n", count);
+                printf("Rebentou %d bolas\n", count);
                 valid_pos = evaluate_pos(board_pos_x, board_pos_y, move);
 //                printf("A posicao vale: %d", valid_pos);
                 if(valid == 0 && count >=2 && valid_pos == 0){
@@ -166,8 +167,8 @@ int main( void )
                 }
 //                printf("%d", square); // Se for quadrado retorna 0
                 if ( square == 0 && validate != 1){
+                    remove_inside_square(mem, mem_pos, board, color);
                     remove_same_color(board_pos_x, board_pos_y, board, move, int_colors);
-                    remove_inside_square(mem, mem_pos, board, int_colors);
                 }
 
                 move_reset(board_pos_x, board_pos_y, move);
@@ -300,7 +301,7 @@ void move_reset(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX_BO
             }
 }
 
-int evaluate_color(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX_BOARD_POS], int *count){
+int evaluate_color(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX_BOARD_POS], int *count, int *color){
     int aux = 9;
     int i, j, count1 = 0;
     for(i = 0; i < board_pos_x; i++){
@@ -319,6 +320,7 @@ int evaluate_color(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX
             }
             *count = count1;
             return 0;
+            *color = color;
 }
 
 int evaluate_pos(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX_BOARD_POS]){
@@ -403,13 +405,16 @@ int remove_same_color(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS]
         }
     }
     }
+
 }
 
-void remove_inside_square( int mem[STRING_SIZE][STRING_SIZE], int mem_pos, int board[MAX_BOARD_POS][MAX_BOARD_POS], int _colors ){
+void remove_inside_square( int mem[STRING_SIZE][STRING_SIZE], int mem_pos, int board[MAX_BOARD_POS][MAX_BOARD_POS], int color ){
 int i, j, maximum_x, maximum_y = 0;
 int minimum_x = 40;
 int minimum_y = 40;
 int d = 0;
+maximum_x = 0;
+maximum_y = 0;
     for(i = 0; i < mem_pos; i++){
         if( mem[i][0] > maximum_x){
             maximum_x = mem[i][0];
@@ -436,18 +441,27 @@ int d = 0;
 
 
 
-    for(i = minimum_x; i < maximum_x; i++){
-    for(j = minimum_y; j < maximum_y; j++){
-
-            for(d = 0; d < j; d++){
-                board[i][j-d] = board[i][j-d-1];
-            }
-            board[i][0] = (int) (rand()% (_colors));
-
+    for(i = minimum_x; i <= maximum_x; i++){
+    for(j = minimum_y; j <= maximum_y; j++){
+        board[i][j] = color;
+        printf("\n%d %d\n", i,j);
     }
     }
 
 }
+
+//void game_start(){
+//    SDL_COLOR black = {0, 0, 0};
+//    char play = '0';
+//
+//
+//    RenderText(30, 30, "Carregue N", serif, black, _renderer);
+//
+////    scanf("%c", &play);
+////
+////    if(play == n){}
+//
+//}
 
 /**
  * ProcessMouseEvent: gets the square pos based on the click positions !
