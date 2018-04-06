@@ -58,7 +58,7 @@ int main( void )
     int board[MAX_BOARD_POS][MAX_BOARD_POS] = {{0}};
     int pt_x = 0, pt_y = 0;
 
-    int rows, columns, int_colors, pontos, jogadas = 0;
+    int rows, columns, int_colors, jogadas = 0;
     int i = 0;
     char username[STRING_SIZE];
     int move[MAX_BOARD_POS][MAX_BOARD_POS] = {{0}};
@@ -70,6 +70,9 @@ int main( void )
     int mem[STRING_SIZE][STRING_SIZE] = {{0}};
     int validate = 0;
     int color = 0;
+    int derrotas = 0;
+
+    int pontos[MAX_BOARD_POS];
 
     board_pos_x = 5;
     board_pos_y = 7;
@@ -88,7 +91,7 @@ int main( void )
 
 
     //Parameters to intialize the game
-    parameters(&board_pos_y, &board_pos_x, &int_colors, &pontos, &jogadas);
+    parameters(&board_pos_y, &board_pos_x, &int_colors, pontos, &jogadas);
 
     //Randomly generates colors
     game_board(board, board_pos_x, board_pos_y, int_colors);
@@ -98,8 +101,6 @@ int main( void )
 
     //Sets the move array to all 7 before starting the game
     move_reset(board_pos_x, board_pos_y, move);
-
-    //Asks the user to press n in order to start the game
 
 
 
@@ -118,8 +119,13 @@ int main( void )
                 {
                     case SDLK_n:
                        game_board(board, board_pos_x, board_pos_y, int_colors);
+                       derrotas++;
+                       move_reset(board_pos_x, board_pos_y, move);
+                       break;
                     case SDLK_q:
                         quit = 1;
+                        filecreate();
+                        break;
                     case SDLK_u:
                         // todo
                     default:
@@ -164,12 +170,12 @@ int main( void )
 //                printf("A posicao vale: %d", valid_pos);
                 if(valid == 0 && count >=2 && valid_pos == 0){
                     movedots(board_pos_x, board_pos_y, board, move, int_colors);
-                }
+                    jogadas --;
 //                printf("%d", square); // Se for quadrado retorna 0
                 if ( square == 0 && validate != 1){
-                    remove_inside_square(mem, mem_pos, board, color);
+                    //remove_inside_square(mem, mem_pos, board, color);
                     remove_same_color(board_pos_x, board_pos_y, board, move, int_colors);
-                }
+                }}
 
                 move_reset(board_pos_x, board_pos_y, move);
                 mem_pos = 0;
@@ -208,6 +214,8 @@ int main( void )
         square_size_px = RenderTable( board_pos_x, board_pos_y, board_size_px, serif, imgs, renderer);
         // render board
         RenderPoints(board, board_pos_x, board_pos_y, board_size_px, square_size_px, renderer);
+        //Render stats
+        RenderStats( renderer, serif, pontos, int_colors, jogadas);
         // render in the screen all changes above
         SDL_RenderPresent(renderer);
         // add a delay
@@ -228,9 +236,10 @@ int main( void )
 }
 
 
-void parameters(int *rows1, int *columns1, int *int_colors1, int *pontos1, int *jogadas1){
+void parameters(int *rows1, int *columns1, int *int_colors1, int pontos[MAX_BOARD_POS], int *jogadas1){
 
-    int rows, columns, int_colors, pontos, jogadas = 0;
+    int rows, columns, int_colors, jogadas = 0;
+    int i = 0;
 
     printf("Qual é o tamanho do tabuleiro que quer(rows * columns): ");
     scanf("%d %d", &rows, &columns);
@@ -252,15 +261,30 @@ void parameters(int *rows1, int *columns1, int *int_colors1, int *pontos1, int *
         printf("\nQuantas cores quer no jogo: ");
         scanf(" %d", &int_colors);
     }
-    printf("\nNúmero de pontos a alcançar: ");
-    scanf(" %d", &pontos);
-    if(pontos <= 99){
 
-    }else{
-        printf("\nNão pode ser mais que 99 pontos");
-        printf("\nNúmero de pontos a alcançar: ");
-        scanf("%d", &pontos);
+
+//    printf("\nNúmero de pontos a alcançar na: ");
+//    scanf(" %d", &pontos);
+//    if(pontos <= 99){
+//
+//    }else{
+//        printf("\nNão pode ser mais que 99 pontos");
+//        printf("\nNúmero de pontos a alcançar: ");
+//        scanf("%d", &pontos);
+//    }
+
+    for( i = 0; i < int_colors; i++){
+    printf("\nNúmero de pontos a alcançar na cor %d: ", i+1);
+    scanf(" %d", &pontos[i]);
+    if( pontos[i] > 99){
+        printf("Esse valor é superior a 99");
+        printf("\nNúmero de pontos a alcançar na cor %d: ", i);
+        scanf(" %d", &pontos[i]);
     }
+
+    }
+
+
     printf("\nNúmero máximo de jogadas: ");
     scanf(" %d", &jogadas);
     if(jogadas <= 99){
@@ -275,7 +299,6 @@ void parameters(int *rows1, int *columns1, int *int_colors1, int *pontos1, int *
     *rows1 = rows;
     *columns1 = columns;
     *int_colors1 = int_colors;
-    *pontos1 = pontos;
     *jogadas1 = jogadas;
 }
 
@@ -450,18 +473,9 @@ maximum_y = 0;
 
 }
 
-//void game_start(){
-//    SDL_COLOR black = {0, 0, 0};
-//    char play = '0';
-//
-//
-//    RenderText(30, 30, "Carregue N", serif, black, _renderer);
-//
-////    scanf("%c", &play);
-////
-////    if(play == n){}
-//
-//}
+void filecreate(){
+
+}
 
 /**
  * ProcessMouseEvent: gets the square pos based on the click positions !
@@ -576,6 +590,27 @@ void filledCircleRGBA(SDL_Renderer * _renderer, int _circleX, int _circleY, int 
 void RenderStats( SDL_Renderer *_renderer, TTF_Font *_font, int _goals[], int _ncolors, int _moves)
 {
     /* To Be Done */
+    SDL_Color black = { 0,0,0};
+    int rect_x_pos = 170;
+    SDL_SetRenderDrawColor(_renderer, 205, 193, 101, 255 );
+    char numberPlays[5];
+    sprintf(numberPlays, "%d", _moves);
+
+    SDL_Rect jogadas = {50,50,80,50};
+    SDL_RenderFillRect(_renderer, &jogadas);
+    RenderText(65, 65, numberPlays, _font, &black, _renderer);
+
+    //Dar print às cores
+    for(int i = 0; i < _ncolors; i++){
+        SDL_SetRenderDrawColor(_renderer, 205, 193, 181, 255);
+        SDL_Rect rect = {rect_x_pos, 50, 100, 50};
+        SDL_RenderFillRect(_renderer, &rect);
+        char colorPoints[5];
+        sprintf(colorPoints, "%d", _goals[i]);
+        filledCircleRGBA(_renderer, rect_x_pos + 25, 75, 15, colors[0][i], colors[1][i], colors[2][i]);
+        RenderText(rect_x_pos + 50, 65, colorPoints, _font, &black, _renderer);
+        rect_x_pos = rect_x_pos + 120;
+    }
 }
 
 /*
