@@ -71,6 +71,7 @@ int main( void )
     int validate = 0;
     int color = 0;
     int derrotas = 0;
+    int count1 = 0;
 
     int pontos[MAX_BOARD_POS];
 
@@ -171,10 +172,16 @@ int main( void )
                 if(valid == 0 && count >=2 && valid_pos == 0){
                     movedots(board_pos_x, board_pos_y, board, move, int_colors);
                     jogadas --;
+                    pontos[color] = pontos[color] - count;
 //                printf("%d", square); // Se for quadrado retorna 0
                 if ( square == 0 && validate != 1){
                     //remove_inside_square(mem, mem_pos, board, color);
-                    remove_same_color(board_pos_x, board_pos_y, board, move, int_colors);
+                    remove_same_color(board_pos_x, board_pos_y, board, move, int_colors, &count1);
+                    if(pontos[color] - count1 < 0){
+                        pontos[color] = 0;
+                    }else{
+                        pontos[color] = pontos[color] - count1;
+                    }
                 }}
 
                 move_reset(board_pos_x, board_pos_y, move);
@@ -342,8 +349,8 @@ int evaluate_color(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX
         }
             }
             *count = count1;
+            *color = aux;
             return 0;
-            *color = color;
 }
 
 int evaluate_pos(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX_BOARD_POS]){
@@ -406,9 +413,10 @@ int square_validate( int mem[STRING_SIZE][STRING_SIZE], int mem_pos ){
 return 0;
 }
 
-int remove_same_color(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOARD_POS], int move[MAX_BOARD_POS][MAX_BOARD_POS], int _colors){
+int remove_same_color(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOARD_POS], int move[MAX_BOARD_POS][MAX_BOARD_POS], int _colors, int *count){
     int i, j, c,d = 0;
     int aux = 9;
+    int count1 = 0;
     srand(time(NULL));
 
     for(i = 0; i < board_pos_x; i++){
@@ -421,6 +429,7 @@ int remove_same_color(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS]
     for(i = 0; i < board_pos_x; i++){
     for(j = 0; j < board_pos_y; j++){
         if( board[i][j] == aux ){
+        count1++;
             for(d = 0; d < j; d++){
                 board[i][j-d] = board[i][j-d-1];
             }
@@ -428,6 +437,8 @@ int remove_same_color(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS]
         }
     }
     }
+
+    *count = count1;
 
 }
 
