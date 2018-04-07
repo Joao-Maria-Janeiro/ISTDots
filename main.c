@@ -177,14 +177,13 @@ int main( void )
                     if ( square == 0 && validate != 1){
                         remove_inside_square(mem, mem_pos, board, color, move);
                         remove_same_color(board_pos_x, board_pos_y, board, move, int_colors, &count1);
-                        if(pontos[color] - count1 < 0){
+                    }
+                    movedots(board_pos_x, board_pos_y, board, move, int_colors);
+                    if(pontos[color] - count1 < 0){
                             pontos[color] = 0;
                         }else{
                             pontos[color] = pontos[color] - count1;
                         }
-
-                    }
-                    movedots(board_pos_x, board_pos_y, board, move, int_colors);
                 }
 
                 move_reset(board_pos_x, board_pos_y, move);
