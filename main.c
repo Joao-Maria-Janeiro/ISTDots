@@ -19,7 +19,7 @@
 #define MARGIN 5
 
 // declaration of the functions related to graphical issues
-void InitEverything(int , int , TTF_Font **, SDL_Surface **, SDL_Window ** , SDL_Renderer ** );
+void InitEverything(int , int , TTF_Font **, SDL_Surface **, SDL_Window ** , SDL_Renderer **, TTF_Font ** );
 void InitSDL();
 void InitFont();
 SDL_Window* CreateWindow(int , int );
@@ -47,6 +47,7 @@ int main( void )
     SDL_Window *window = NULL;
     SDL_Renderer *renderer = NULL;
     TTF_Font *serif = NULL;
+    TTF_Font *serif_big = NULL;
     SDL_Surface *imgs[2];
     SDL_Event event;
     int delay = 300;
@@ -117,7 +118,7 @@ int main( void )
     game_board(board, board_pos_x, board_pos_y, int_colors);
 
     // initialize graphics
-    InitEverything(width, height, &serif, imgs, &window, &renderer);
+    InitEverything(width, height, &serif, imgs, &window, &renderer, &serif_big);
 
     //Sets the move array to all 7 before starting the game
     move_reset(board_pos_x, board_pos_y, move);
@@ -272,7 +273,7 @@ int main( void )
         //Render stats
         RenderStats( renderer, serif, pontos, int_colors, jogadas);
         //Render game result
-        render_squares(renderer, serif, vitoria, derrota);
+        render_squares(renderer, serif_big, vitoria, derrota);
         // render in the screen all changes above
         SDL_RenderPresent(renderer);
         // add a delay
@@ -635,20 +636,20 @@ void render_squares( SDL_Renderer *_renderer, TTF_Font *_font, int vitoria, int 
 
     if(vitoria == 1){
     //Renders the square to display the text
-        SDL_Rect victoria = {200, 200, 500, 250};
+        SDL_Rect victoria = {80, 200, 700, 500};
         SDL_RenderFillRect( _renderer, &victoria);
     //Render victory text
-        RenderText(420, 300, "Victory", _font, &blue, _renderer);
-        RenderText(360, 320, "Press n to play another game", _font, &blue, _renderer);
+        RenderText(340, 300, "VICTORY", _font, &blue, _renderer);
+        RenderText(180, 350, "Press n to play another game", _font, &blue, _renderer);
     }
 
     if(derrota == 1){
     //Renders the square to display the text
         SDL_Rect victoria = {200, 200, 500, 250};
         SDL_RenderFillRect( _renderer, &victoria);
-    //Render victory text
-        RenderText(420, 300, "DEFEAT", _font, &blue, _renderer);
-        RenderText(360, 320, "Press n to play another game", _font, &blue, _renderer);
+    //Render Defeat text
+        RenderText(340, 300, "DEFEAT", _font, &blue, _renderer);
+        RenderText(180, 350, "Press n to play another game", _font, &blue, _renderer);
     }
 
 }
@@ -946,7 +947,7 @@ int RenderText(int x, int y, const char *text, TTF_Font *_font, SDL_Color *_colo
  * \param _window represents the window of the application
  * \param _renderer renderer to handle all rendering in a window
  */
-void InitEverything(int width, int height, TTF_Font **_font, SDL_Surface *_img[], SDL_Window** _window, SDL_Renderer** _renderer)
+void InitEverything(int width, int height, TTF_Font **_font, SDL_Surface *_img[], SDL_Window** _window, SDL_Renderer** _renderer, TTF_Font **_font1)
 {
     InitSDL();
     InitFont();
@@ -970,6 +971,13 @@ void InitEverything(int width, int height, TTF_Font **_font, SDL_Surface *_img[]
     }
     // this opens (loads) a font file and sets a size
     *_font = TTF_OpenFont("FreeSerif.ttf", 16);
+    if(!*_font)
+    {
+        printf("TTF_OpenFont: %s\n", TTF_GetError());
+        exit(EXIT_FAILURE);
+    }
+
+     *_font1 = TTF_OpenFont("FreeSerif.ttf", 38);
     if(!*_font)
     {
         printf("TTF_OpenFont: %s\n", TTF_GetError());
