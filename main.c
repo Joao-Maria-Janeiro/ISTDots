@@ -70,10 +70,17 @@ int main( void )
     int mem[STRING_SIZE][STRING_SIZE] = {{0}};
     int validate = 0;
     int color = 0;
-    int derrotas = 0;
+    int derrotas, victorias = 0;
     int count1 = 0;
 
     int pontos[MAX_BOARD_POS] = {0};
+    int pontos1[MAX_BOARD_POS] = {0};
+
+    int board_pos_x_1, board_pos_y_1, int_colors_1, jogadas1 = 0;
+    int jogos[STRING_SIZE] = {2};
+    int jogo = 0;
+    int vitoria, derrota = 0;
+    int plays[STRING_SIZE] = {0};
 
     board_pos_x = 5;
     board_pos_y = 7;
@@ -99,6 +106,13 @@ int main( void )
     //Parameters to intialize the game
     parameters(&board_pos_y, &board_pos_x, &int_colors, pontos, &jogadas);
 
+    board_pos_y_1 = board_pos_y;
+    board_pos_x_1 = board_pos_x;
+    int_colors_1 = int_colors;
+    jogadas1 = jogadas;
+    for( i = 0; i < MAX_BOARD_POS; i++){
+        pontos1[i] = pontos[i];
+    }
     //Randomly generates colors
     game_board(board, board_pos_x, board_pos_y, int_colors);
 
@@ -124,13 +138,21 @@ int main( void )
                 switch ( event.key.keysym.sym )
                 {
                     case SDLK_n:
-                       game_board(board, board_pos_x, board_pos_y, int_colors);
-                       move_reset(board_pos_x, board_pos_y, move);
-                       derrotas++;
+                        game_board(board, board_pos_x, board_pos_y, int_colors);
+                        move_reset(board_pos_x, board_pos_y, move);
+                        //derrotas++;
+                        board_pos_y = board_pos_y_1;
+                        board_pos_x = board_pos_x_1;
+                        int_colors = int_colors_1;
+                        jogadas = jogadas1;
+                        for( i = 0; i < MAX_BOARD_POS; i++){
+                            pontos[i] = pontos1[i];
+                        }
                        break;
                     case SDLK_q:
                         quit = 1;
-                        filecreate();
+                        filecreate(jogos, jogo, username, plays);
+                        jogo = 0;
                         break;
                     case SDLK_u:
                         // todo
@@ -195,8 +217,18 @@ int main( void )
                     }
                     movedots(board_pos_x, board_pos_y, board, move, int_colors);
                 }
-                victory(pontos, renderer, serif);
-                defeat(pontos, jogadas);
+                vitoria = victory(pontos, renderer, serif);
+                derrota = defeat(pontos, jogadas);
+                if(vitoria == 1){
+                    jogos[jogo] = 1;
+                    plays[jogo] = jogadas1 - jogadas;
+                    jogo ++;
+                }
+                if(derrota == 1){
+                    jogos[jogo] = 0;
+                    plays[jogo] = jogadas1 - jogadas;
+                    jogo ++;
+                }
                 move_reset(board_pos_x, board_pos_y, move);
                 mem_pos = 0;
                 validate = 0;
@@ -531,11 +563,31 @@ maximum_y = 0;
 
 }
 
-void filecreate(){
+void filecreate(int jogos[STRING_SIZE], int jogo, char username[STRING_SIZE], int plays[STRING_SIZE]){
+    int i = 0;
+    FILE *f = fopen("stats.txt", "w");
+    if (f == NULL)
+    {
+        printf("Error opening file!\n");
+        exit(1);
+    }
 
+    fprintf(f, "Username: %s\n", username);
+    fprintf(f, "You played %d games\n", jogo);
+
+    for(i = 0; i < jogo; i++){
+        if(jogos[i] == 0){
+            fprintf(f, "Game %d: Defeat with %d moves\n", i+1, plays[i]);
+        }
+        if(jogos[i] == 1){
+            fprintf(f, "Game %d: Victory with %d moves\n", i+1, plays[i]);
+        }
+        //fprintf(f, "Game %d: %d\n", i+1, jogos[i]);
+    }
+    fclose(f);
 }
 
-void victory(int pontos[MAX_BOARD_POS], SDL_Renderer *_renderer, TTF_Font *_font){
+int victory(int pontos[MAX_BOARD_POS], SDL_Renderer *_renderer, TTF_Font *_font){
     int i = 0;
     int count = 0;
     for(i = 0; i < 5; i++){
@@ -543,13 +595,16 @@ void victory(int pontos[MAX_BOARD_POS], SDL_Renderer *_renderer, TTF_Font *_font
             count++;
         }
     }
-    if(count == 5){
+    if(count == 5){ //Checks if all the objectives were met
         printf("\nVitória!\n");
+        return 1;
+    }else{
+        return 0;
     }
 
 }
 
-void defeat(int pontos[MAX_BOARD_POS], int jogadas){
+int defeat(int pontos[MAX_BOARD_POS], int jogadas){
     int i = 0;
     int count = 0;
     for(i = 0; i < 5; i++){
@@ -558,9 +613,16 @@ void defeat(int pontos[MAX_BOARD_POS], int jogadas){
         }
     }
 
-    if(jogadas == 0 && count !=5){
+    if(jogadas == 0 && count !=5){ //Checks if there are no moves left and the objectives were not accomplished
         printf("\nDefeat\n");
+        return 1;
+    }else{
+        return 0;
     }
+}
+
+void start_new_game(){
+    
 }
 
 /**
