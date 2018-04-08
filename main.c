@@ -148,6 +148,8 @@ int main( void )
                         for( i = 0; i < MAX_BOARD_POS; i++){
                             pontos[i] = pontos1[i];
                         }
+                        vitoria = 0;
+                        derrota = 0;
                        break;
                     case SDLK_q:
                         quit = 1;
@@ -217,7 +219,7 @@ int main( void )
                     }
                     movedots(board_pos_x, board_pos_y, board, move, int_colors);
                 }
-                vitoria = victory(pontos, renderer, serif);
+                vitoria = victory(pontos);
                 derrota = defeat(pontos, jogadas);
                 if(vitoria == 1){
                     jogos[jogo] = 1;
@@ -269,6 +271,8 @@ int main( void )
         RenderPoints(board, board_pos_x, board_pos_y, board_size_px, square_size_px, renderer);
         //Render stats
         RenderStats( renderer, serif, pontos, int_colors, jogadas);
+        //Render game result
+        render_squares(renderer, serif, vitoria, derrota);
         // render in the screen all changes above
         SDL_RenderPresent(renderer);
         // add a delay
@@ -587,7 +591,8 @@ void filecreate(int jogos[STRING_SIZE], int jogo, char username[STRING_SIZE], in
     fclose(f);
 }
 
-int victory(int pontos[MAX_BOARD_POS], SDL_Renderer *_renderer, TTF_Font *_font){
+int victory(int pontos[MAX_BOARD_POS]){
+
     int i = 0;
     int count = 0;
     for(i = 0; i < 5; i++){
@@ -595,6 +600,8 @@ int victory(int pontos[MAX_BOARD_POS], SDL_Renderer *_renderer, TTF_Font *_font)
             count++;
         }
     }
+
+
     if(count == 5){ //Checks if all the objectives were met
         printf("\nVitória!\n");
         return 1;
@@ -621,10 +628,30 @@ int defeat(int pontos[MAX_BOARD_POS], int jogadas){
     }
 }
 
-void start_new_game(){
-    
-}
+void render_squares( SDL_Renderer *_renderer, TTF_Font *_font, int vitoria, int derrota){
+    SDL_Color blue = {30,144,255};
+    SDL_SetRenderDrawColor( _renderer, 250, 250, 210, 0.5);
 
+
+    if(vitoria == 1){
+    //Renders the square to display the text
+        SDL_Rect victoria = {200, 200, 500, 250};
+        SDL_RenderFillRect( _renderer, &victoria);
+    //Render victory text
+        RenderText(420, 300, "Victory", _font, &blue, _renderer);
+        RenderText(360, 320, "Press n to play another game", _font, &blue, _renderer);
+    }
+
+    if(derrota == 1){
+    //Renders the square to display the text
+        SDL_Rect victoria = {200, 200, 500, 250};
+        SDL_RenderFillRect( _renderer, &victoria);
+    //Render victory text
+        RenderText(420, 300, "DEFEAT", _font, &blue, _renderer);
+        RenderText(360, 320, "Press n to play another game", _font, &blue, _renderer);
+    }
+
+}
 /**
  * ProcessMouseEvent: gets the square pos based on the click positions !
  * \param _mouse_pos_x position of the click on pixel coordinates
@@ -747,7 +774,7 @@ void RenderStats( SDL_Renderer *_renderer, TTF_Font *_font, int _goals[], int _n
     //Dar print às jogadas restantes
     SDL_Rect jogadas = {50,50,80,50};
     SDL_RenderFillRect(_renderer, &jogadas);
-    RenderText(67, 67, numberPlays, _font, &black, _renderer);
+    RenderText(67, 62, numberPlays, _font, &black, _renderer);
 
     //Dar print às cores
     for(int i = 0; i < _ncolors; i++){
