@@ -73,7 +73,7 @@ int main( void )
     int derrotas = 0;
     int count1 = 0;
 
-    int pontos[MAX_BOARD_POS];
+    int pontos[MAX_BOARD_POS] = {0};
 
     board_pos_x = 5;
     board_pos_y = 7;
@@ -87,8 +87,13 @@ int main( void )
 //    board[0][1] = 1;
 
 
+//    printf( "Whats your name? " );
+//   fgets( username, sizeof( username ), stdin );
+
+   do{
     printf( "Whats your name? " );
-   fgets( username, sizeof( username ), stdin );
+    fgets( username, sizeof( username ), stdin );
+   }while( strlen(username) < 1 || strlen(username) > 8);
 
 
     //Parameters to intialize the game
@@ -120,8 +125,8 @@ int main( void )
                 {
                     case SDLK_n:
                        game_board(board, board_pos_x, board_pos_y, int_colors);
-                       derrotas++;
                        move_reset(board_pos_x, board_pos_y, move);
+                       derrotas++;
                        break;
                     case SDLK_q:
                         quit = 1;
@@ -172,20 +177,26 @@ int main( void )
                 if(valid == 0 && count >=2 && valid_pos == 0){
 //                    movedots(board_pos_x, board_pos_y, board, move, int_colors);
                     jogadas --;
-                    pontos[color] = pontos[color] - count;
+                    //pontos[color] = pontos[color] - count;
+                    if(pontos[color] - count < 0){
+                        pontos[color] = 0;
+                    }else{
+                        pontos[color] = pontos[color] - count;
+                        }
 //                printf("%d", square); // Se for quadrado retorna 0
                     if ( square == 0 && validate != 1){
                         remove_inside_square(mem, mem_pos, board, color, move);
                         remove_same_color(board_pos_x, board_pos_y, board, move, int_colors, &count1);
-                    }
-                    movedots(board_pos_x, board_pos_y, board, move, int_colors);
-                    if(pontos[color] - count1 < 0){
+                        if(pontos[color] - count1 < 0){
                             pontos[color] = 0;
                         }else{
                             pontos[color] = pontos[color] - count1;
                         }
+                    }
+                    movedots(board_pos_x, board_pos_y, board, move, int_colors);
                 }
-
+                victory(pontos, renderer, serif);
+                defeat(pontos, jogadas);
                 move_reset(board_pos_x, board_pos_y, move);
                 mem_pos = 0;
                 validate = 0;
@@ -214,6 +225,7 @@ int main( void )
 
 
             }
+
 
         }
 
@@ -250,27 +262,42 @@ void parameters(int *rows1, int *columns1, int *int_colors1, int pontos[MAX_BOAR
     int rows, columns, int_colors, jogadas = 0;
     int i = 0;
 
-    printf("Qual é o tamanho do tabuleiro que quer(rows * columns): ");
-    scanf("%d %d", &rows, &columns);
-    if (rows < 15 && rows > 5 && columns < 15 && columns > 5 ){
+//    printf("Qual é o tamanho do tabuleiro que quer(rows * columns): ");
+//    scanf("%d %d", &rows, &columns);
+//    if (rows < 15 && rows > 5 && columns < 15 && columns > 5 ){
+//
+//    }else{
+//        printf("\nOs valores do tabuleiro têm de estar compreeendidos entre 5 e 15");
+//        printf("Qual é o tamanho do tabuleiro que quer(rows * columns): ");
+//        scanf(" %d %d", &rows, &columns);
+//    }
 
-    }else{
-        printf("\nOs valores do tabuleiro têm de estar compreeendidos entre 5 e 15");
+    do{
         printf("Qual é o tamanho do tabuleiro que quer(rows * columns): ");
-        scanf(" %d %d", &rows, &columns);
-    }
+        scanf("%d %d", &rows, &columns);
+        if(rows > 15 || rows < 5 || columns > 15 || columns < 5){
+            printf("\nOs valores do tabuleiro têm de estar compreeendidos entre 5 e 15\n");
+        }
+    }while(rows > 15 || rows < 5 || columns > 15 || columns < 5);
 
 
-    printf("\nQuantas cores quer no jogo: ");
-    scanf(" %d", &int_colors);
-    if( int_colors <= 5){
+//    printf("\nQuantas cores quer no jogo: ");
+//    scanf(" %d", &int_colors);
+//    if( int_colors <= 5){
+//
+//    }else{
+//        printf("\nNão podem existir mais que 5 cores no jogo");
+//        printf("\nQuantas cores quer no jogo: ");
+//        scanf(" %d", &int_colors);
+//    }
 
-    }else{
-        printf("\nNão podem existir mais que 5 cores no jogo");
+    do{
         printf("\nQuantas cores quer no jogo: ");
         scanf(" %d", &int_colors);
-    }
-
+        if(int_colors > 5){
+            printf("\nNão podem existir mais que 5 cores no jogo");
+        }
+    }while(int_colors > 5);
 
 //    printf("\nNúmero de pontos a alcançar na: ");
 //    scanf(" %d", &pontos);
@@ -285,24 +312,32 @@ void parameters(int *rows1, int *columns1, int *int_colors1, int pontos[MAX_BOAR
     for( i = 0; i < int_colors; i++){
     printf("\nNúmero de pontos a alcançar na cor %d: ", i+1);
     scanf(" %d", &pontos[i]);
-    if( pontos[i] > 99){
+    while( pontos[i] > 99){
         printf("Esse valor é superior a 99");
-        printf("\nNúmero de pontos a alcançar na cor %d: ", i);
+        printf("\nNúmero de pontos a alcançar na cor %d: ", i+1);
         scanf(" %d", &pontos[i]);
     }
 
     }
 
 
-    printf("\nNúmero máximo de jogadas: ");
-    scanf(" %d", &jogadas);
-    if(jogadas <= 99){
+//    printf("\nNúmero máximo de jogadas: ");
+//    scanf(" %d", &jogadas);
+//    if(jogadas <= 99){
+//
+//    }else{
+//        printf("\nNão pode ser mais que 99 jogadas");
+//        printf("\nNúmero máximo de jogadas");
+//        scanf(" %d", &jogadas);
+//    }
 
-    }else{
-        printf("\nNão pode ser mais que 99 jogadas");
-        printf("\nNúmero máximo de jogadas");
+    do{
+        printf("\nNúmero máximo de jogadas: ");
         scanf(" %d", &jogadas);
-    }
+        if(jogadas > 99){
+           printf("\nNão pode ser mais que 99 jogadas");
+        }
+    }while(jogadas > 99);
 
 
     *rows1 = rows;
@@ -500,6 +535,34 @@ void filecreate(){
 
 }
 
+void victory(int pontos[MAX_BOARD_POS], SDL_Renderer *_renderer, TTF_Font *_font){
+    int i = 0;
+    int count = 0;
+    for(i = 0; i < 5; i++){
+        if(pontos[i] <= 0){
+            count++;
+        }
+    }
+    if(count == 5){
+        printf("\nVitória!\n");
+    }
+
+}
+
+void defeat(int pontos[MAX_BOARD_POS], int jogadas){
+    int i = 0;
+    int count = 0;
+    for(i = 0; i < 5; i++){
+        if(pontos[i] <= 0){
+            count++;
+        }
+    }
+
+    if(jogadas == 0 && count !=5){
+        printf("\nDefeat\n");
+    }
+}
+
 /**
  * ProcessMouseEvent: gets the square pos based on the click positions !
  * \param _mouse_pos_x position of the click on pixel coordinates
@@ -619,13 +682,14 @@ void RenderStats( SDL_Renderer *_renderer, TTF_Font *_font, int _goals[], int _n
     char numberPlays[5];
     sprintf(numberPlays, "%d", _moves);
 
+    //Dar print às jogadas restantes
     SDL_Rect jogadas = {50,50,80,50};
     SDL_RenderFillRect(_renderer, &jogadas);
-    RenderText(65, 65, numberPlays, _font, &black, _renderer);
+    RenderText(67, 67, numberPlays, _font, &black, _renderer);
 
     //Dar print às cores
     for(int i = 0; i < _ncolors; i++){
-        SDL_SetRenderDrawColor(_renderer, 205, 193, 181, 255);
+        SDL_SetRenderDrawColor(_renderer, 205, 194, 180, 255);
         SDL_Rect rect = {rect_x_pos, 50, 100, 50};
         SDL_RenderFillRect(_renderer, &rect);
         char colorPoints[5];
