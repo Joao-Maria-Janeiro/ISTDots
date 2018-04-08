@@ -232,6 +232,7 @@ int main( void )
                     plays[jogo] = jogadas1 - jogadas;
                     jogo ++;
                 }
+                shuffle(board, board_pos_x, board_pos_y);
                 move_reset(board_pos_x, board_pos_y, move);
                 mem_pos = 0;
                 validate = 0;
@@ -645,13 +646,53 @@ void render_squares( SDL_Renderer *_renderer, TTF_Font *_font, int vitoria, int 
 
     if(derrota == 1){
     //Renders the square to display the text
-        SDL_Rect victoria = {200, 200, 500, 250};
+        SDL_Rect victoria = {80, 200, 700, 500};
         SDL_RenderFillRect( _renderer, &victoria);
     //Render Defeat text
         RenderText(340, 300, "DEFEAT", _font, &blue, _renderer);
         RenderText(180, 350, "Press n to play another game", _font, &blue, _renderer);
     }
 
+}
+
+void shuffle(int board[MAX_BOARD_POS][MAX_BOARD_POS], int board_pos_x, int board_pos_y){
+    int i, j = 0;
+
+    for(i = 0; i < board_pos_x; i++){
+    for(j = 0; j < board_pos_y; j++){
+        if( board[i][j] != board[i+1][j] && board[i][j] != board[i-1][j] && board[i][j] != board[i][j+1] && board[i][j] != board[i][j-1]){
+//            return 1;
+            printf("Shuffle");
+        }
+        else if(i == 0 && j == 0){
+            if(board[i][j] != board[i][j+1] && board[i][j] != board[i+1][j]){
+//                return 1;
+                printf("Shuffle");
+            }
+        }
+        else if(i == 0 && j == board_pos_y){
+            if(board[i][j] != board[i][j+1] && board[i][j] != board[i-1][j]){
+//                return 1;
+                printf("Shuffle");
+        }
+    }
+        else if(i == board_pos_x && j == 0){
+            if(board[i][j] != board[i][j-1] && board[i][j] != board[i+1][j]){
+//                return 1;
+                printf("Shuffle");
+        }
+    }
+
+       else if(i == board_pos_x && j == board_pos_y){
+            if(board[i][j] != board[i][j-1] && board[i][j] != board[i-1][j]){
+//                return 1;
+                printf("Shuffle");
+        }
+    }
+
+
+    }}
+//return 0;
 }
 /**
  * ProcessMouseEvent: gets the square pos based on the click positions !
