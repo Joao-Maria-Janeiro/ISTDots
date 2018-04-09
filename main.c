@@ -17,6 +17,7 @@
 #define MAX_BOARD_POS 15      // maximum size of the board
 #define MAX_COLORS 5
 #define MARGIN 5
+#define SQR(a)      (a)*(a)
 
 // declaration of the functions related to graphical issues
 void InitEverything(int , int , TTF_Font **, SDL_Surface **, SDL_Window ** , SDL_Renderer **, TTF_Font ** );
@@ -32,7 +33,22 @@ void RenderPoints(int [][MAX_BOARD_POS], int, int, int [], int, SDL_Renderer *);
 void RenderStats( SDL_Renderer *, TTF_Font *, int [], int , int );
 void filledCircleRGBA(SDL_Renderer * , int , int , int , int , int , int );
 void parameters(int *, int *, int*, int *, int*);
+void game_board(int [MAX_BOARD_POS][MAX_BOARD_POS], int , int , int );
+void move_reset(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS]);
+int evaluate_color(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS], int *, int *);
+int evaluate_pos(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS]);
+void movedots(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS], int [MAX_BOARD_POS][MAX_BOARD_POS], int );
+int square_detect(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS], int [MAX_BOARD_POS][MAX_BOARD_POS], int , int , int );
+int square_validate( int [STRING_SIZE][STRING_SIZE], int );
+int remove_same_color(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS], int [MAX_BOARD_POS][MAX_BOARD_POS], int , int *);
+void remove_inside_square( int [STRING_SIZE][STRING_SIZE], int , int [MAX_BOARD_POS][MAX_BOARD_POS], int , int [MAX_BOARD_POS][MAX_BOARD_POS]);
+void filecreate(int [], int , char [], int [], int , int);
+int victory(int []);
+int defeat(int [], int );
+void render_squares( SDL_Renderer *, TTF_Font *, int , int , int );
+int shuffle(int [MAX_BOARD_POS][MAX_BOARD_POS], int , int );
 void render_shuffle(SDL_Renderer *, TTF_Font *);
+
 
 // definition of some strings: they cannot be changed when the program is executed !
 const char myName[] = "Joao Maria Silva";
@@ -60,7 +76,7 @@ int main( void )
     int board[MAX_BOARD_POS][MAX_BOARD_POS] = {{0}};
     int pt_x = 0, pt_y = 0;
 
-    int rows, columns, int_colors, jogadas = 0;
+    int int_colors, jogadas = 0;
     int i = 0;
     char username[STRING_SIZE];
     int move[MAX_BOARD_POS][MAX_BOARD_POS] = {{0}};
@@ -210,14 +226,12 @@ int main( void )
                 valid_pos = evaluate_pos(board_pos_x, board_pos_y, move);
 //                printf("A posicao vale: %d", valid_pos);
                 if(valid == 0 && count >=2 && valid_pos == 0){
-//                    movedots(board_pos_x, board_pos_y, board, move, int_colors);
                     jogadas --;
-                    //pontos[color] = pontos[color] - count;
-                    if(pontos[color] - count < 0){
-                        pontos[color] = 0;
-                    }else{
-                        pontos[color] = pontos[color] - count;
-                        }
+//                    if(pontos[color] - count < 0){
+//                        pontos[color] = 0;
+//                    }else{
+//                        pontos[color] = pontos[color] - count;
+//                        }
 //                printf("%d", square); // Se for quadrado retorna 0
                     if ( square == 0 && validate != 1){
                         remove_inside_square(mem, mem_pos, board, color, move);
@@ -226,6 +240,13 @@ int main( void )
                             pontos[color] = 0;
                         }else{
                             pontos[color] = pontos[color] - count1;
+                        }
+                    }
+                    else{
+                        if(pontos[color] - count < 0){
+                            pontos[color] = 0;
+                        }else{
+                            pontos[color] = pontos[color] - count;
                         }
                     }
                     movedots(board_pos_x, board_pos_y, board, move, int_colors);
@@ -285,6 +306,8 @@ int main( void )
         square_size_px = RenderTable( board_pos_x, board_pos_y, board_size_px, serif, imgs, renderer);
         // render board
         RenderPoints(board, board_pos_x, board_pos_y, board_size_px, square_size_px, renderer);
+        //Change the color of the selected dots
+        rasto(mem, mem_pos, renderer);
         //Render stats
         RenderStats( renderer, serif, pontos, int_colors, jogadas);
         //Render game result
@@ -320,81 +343,41 @@ void parameters(int *rows1, int *columns1, int *int_colors1, int pontos[MAX_BOAR
     int rows, columns, int_colors, jogadas = 0;
     int i = 0;
 
-//    printf("Qual é o tamanho do tabuleiro que quer(rows * columns): ");
-//    scanf("%d %d", &rows, &columns);
-//    if (rows < 15 && rows > 5 && columns < 15 && columns > 5 ){
-//
-//    }else{
-//        printf("\nOs valores do tabuleiro têm de estar compreeendidos entre 5 e 15");
-//        printf("Qual é o tamanho do tabuleiro que quer(rows * columns): ");
-//        scanf(" %d %d", &rows, &columns);
-//    }
-
     do{
         printf("Qual é o tamanho do tabuleiro que quer(rows * columns): ");
         scanf("%d %d", &rows, &columns);
-        if(rows > 15 || rows < 5 || columns > 15 || columns < 5){
-            printf("\nOs valores do tabuleiro têm de estar compreeendidos entre 5 e 15\n");
-        }
+            if(rows > 15 || rows < 5 || columns > 15 || columns < 5){
+                printf("\nOs valores do tabuleiro têm de estar compreeendidos entre 5 e 15\n");
+            }
     }while(rows > 15 || rows < 5 || columns > 15 || columns < 5);
 
-
-//    printf("\nQuantas cores quer no jogo: ");
-//    scanf(" %d", &int_colors);
-//    if( int_colors <= 5){
-//
-//    }else{
-//        printf("\nNão podem existir mais que 5 cores no jogo");
-//        printf("\nQuantas cores quer no jogo: ");
-//        scanf(" %d", &int_colors);
-//    }
 
     do{
         printf("\nQuantas cores quer no jogo: ");
         scanf(" %d", &int_colors);
-        if(int_colors > 5){
-            printf("\nNão podem existir mais que 5 cores no jogo");
-        }
+            if(int_colors > 5){
+                printf("\nNão podem existir mais que 5 cores no jogo");
+            }
     }while(int_colors > 5);
 
-//    printf("\nNúmero de pontos a alcançar na: ");
-//    scanf(" %d", &pontos);
-//    if(pontos <= 99){
-//
-//    }else{
-//        printf("\nNão pode ser mais que 99 pontos");
-//        printf("\nNúmero de pontos a alcançar: ");
-//        scanf("%d", &pontos);
-//    }
-
     for( i = 0; i < int_colors; i++){
-    printf("\nNúmero de pontos a alcançar na cor %d: ", i+1);
-    scanf(" %d", &pontos[i]);
-    while( pontos[i] > 99){
-        printf("Esse valor é superior a 99");
         printf("\nNúmero de pontos a alcançar na cor %d: ", i+1);
         scanf(" %d", &pontos[i]);
-    }
+            while( pontos[i] > 99){
+                printf("Esse valor é superior a 99");
+                printf("\nNúmero de pontos a alcançar na cor %d: ", i+1);
+                scanf(" %d", &pontos[i]);
+            }
 
     }
 
-
-//    printf("\nNúmero máximo de jogadas: ");
-//    scanf(" %d", &jogadas);
-//    if(jogadas <= 99){
-//
-//    }else{
-//        printf("\nNão pode ser mais que 99 jogadas");
-//        printf("\nNúmero máximo de jogadas");
-//        scanf(" %d", &jogadas);
-//    }
 
     do{
         printf("\nNúmero máximo de jogadas: ");
         scanf(" %d", &jogadas);
-        if(jogadas > 99){
-           printf("\nNão pode ser mais que 99 jogadas");
-        }
+            if(jogadas > 99){
+                printf("\nNão pode ser mais que 99 jogadas");
+            }
     }while(jogadas > 99);
 
 
@@ -411,7 +394,7 @@ void game_board(int board[MAX_BOARD_POS][MAX_BOARD_POS], int _lines, int _col, i
 
     for(i = 0; i < _lines; i++){
         for(j = 0; j < _col; j++){
-            board[i][j] = ((int)rand()%(_colors));
+            board[i][j] = ((int)rand()%(_colors)); //Generates random colors for all the board positions
         }
     }
 }
@@ -421,7 +404,7 @@ void move_reset(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX_BO
     int i,j = 0;
     for(i = 0; i < board_pos_x; i++){
     for(j = 0; j < board_pos_y; j++){
-        move[i][j] = 7;
+        move[i][j] = 7; //REsets the whole array to the vaule of 7
         }
             }
 }
@@ -433,7 +416,7 @@ int evaluate_color(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX
     for(j = 0; j < board_pos_y; j++){
         if(move[i][j] != 7){
             if( aux == 9 ){
-                aux = move[i][j];
+                aux = move[i][j]; //Gets the value of the color
             }
             count1 ++;
             if( move[i][j] != aux ){
@@ -449,8 +432,7 @@ int evaluate_color(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX
 }
 
 int evaluate_pos(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX_BOARD_POS]){
-    int aux = 9;
-    int i, j, count1 = 0;
+    int i, j = 0;
     for(i = 0; i < board_pos_x; i++){
     for(j = 0; j < board_pos_y; j++){
         if(move[i][j] != 7){
@@ -467,7 +449,7 @@ int evaluate_pos(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX_B
 }
 
 void movedots(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOARD_POS], int move[MAX_BOARD_POS][MAX_BOARD_POS], int _colors){
-    int i, j, c,d = 0;
+    int i, j,d = 0;
     int aux = 9;
     srand(time(NULL));
 
@@ -493,8 +475,6 @@ void movedots(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOA
 }
 
 int square_detect(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOARD_POS], int move[MAX_BOARD_POS][MAX_BOARD_POS], int _colors, int pt_x, int pt_y){
-    int i, j = 0;
-
     if( move[pt_x][pt_y] != 7){
             return 0;
     }
@@ -511,7 +491,7 @@ return 0;
 }
 
 int remove_same_color(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOARD_POS], int move[MAX_BOARD_POS][MAX_BOARD_POS], int _colors, int *count){
-    int i, j, c,d = 0;
+    int i, j = 0;
     int aux = 9;
     int count1 = 0;
     srand(time(NULL));
@@ -522,18 +502,6 @@ int remove_same_color(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS]
             if( aux == 9 ){
                 aux = move[i][j];
             }}}}
-
-//    for(i = 0; i < board_pos_x; i++){
-//    for(j = 0; j < board_pos_y; j++){
-//        if( board[i][j] == aux ){
-//        count1++;
-//            for(d = 0; d < j; d++){
-//                board[i][j-d] = board[i][j-d-1];
-//            }
-//            board[i][0] = (int) (rand()% (_colors));
-//        }
-//    }
-//    }
 
     for (i = 0; i < board_pos_x; i++) {
         for (j = 0; j < board_pos_y; j++) {
@@ -552,7 +520,7 @@ void remove_inside_square( int mem[STRING_SIZE][STRING_SIZE], int mem_pos, int b
 int i, j, maximum_x, maximum_y = 0;
 int minimum_x = 40;
 int minimum_y = 40;
-int d = 0;
+
 maximum_x = 0;
 maximum_y = 0;
     for(i = 0; i < mem_pos; i++){
@@ -725,6 +693,26 @@ void render_shuffle(SDL_Renderer *_renderer, TTF_Font *_font){
         RenderText(340, 300, "SHUFFLE", _font, &blue, _renderer);
 
 }
+
+void rasto(int mem[STRING_SIZE][STRING_SIZE], int mem_pos, SDL_Renderer* _renderer){
+
+    SDL_Color black = { 0, 0, 0 }; // black
+    SDL_Color light = { 205, 193, 181 };
+    SDL_Color dark = { 120, 110, 102 };
+    SDL_Rect tableSrc, tableDest, board, board_square;
+    int height, board_size, square_size_px, max_pos;
+
+    // renders the squares where the numbers will appear
+    SDL_SetRenderDrawColor(_renderer, black.r, black.g, black.b, black.a );
+
+    // iterate over all squares
+    board_square.x = board.x + mem[mem_pos][0]*SQUARE_SEPARATOR + mem[mem_pos][0]*square_size_px;
+    board_square.y = board.y + mem[mem_pos][1]*SQUARE_SEPARATOR + mem[mem_pos][1]*square_size_px;
+    board_square.w = square_size_px;
+    board_square.h = square_size_px;
+    SDL_RenderFillRect(_renderer, &board_square);
+
+}
 /**
  * ProcessMouseEvent: gets the square pos based on the click positions !
  * \param _mouse_pos_x position of the click on pixel coordinates
@@ -737,6 +725,8 @@ void render_shuffle(SDL_Renderer *_renderer, TTF_Font *_font){
 void ProcessMouseEvent(int _mouse_pos_x, int _mouse_pos_y, int _board_size_px[], int _square_size_px,
         int *_pt_x, int *_pt_y )
 {
+    int sqr_x = 0, sqr_y = 0, dist = 0;
+    int circleX = 0, circleY = 0, circleR = 0;
     // corner of the board
     int x_corner = (TABLE_SIZE - _board_size_px[0]) >> 1;
     int y_corner = (TABLE_SIZE - _board_size_px[1] - 15);
@@ -751,11 +741,26 @@ void ProcessMouseEvent(int _mouse_pos_x, int _mouse_pos_y, int _board_size_px[],
     }
 
     // computes the square where the mouse position is
-    _mouse_pos_x = _mouse_pos_x - x_corner;
-    _mouse_pos_y = _mouse_pos_y - y_corner;
+    sqr_x = (_mouse_pos_x - x_corner) / (_square_size_px + SQUARE_SEPARATOR);
+    sqr_y = (_mouse_pos_y - y_corner) / (_square_size_px + SQUARE_SEPARATOR);
 
-    *_pt_x = _mouse_pos_x / (_square_size_px + SQUARE_SEPARATOR);
-    *_pt_y = _mouse_pos_y / (_square_size_px + SQUARE_SEPARATOR);
+    //compute the circle parameters
+    circleX = x_corner + (sqr_x+1)*SQUARE_SEPARATOR + sqr_x*(_square_size_px)+(_square_size_px>>1);
+    circleY = y_corner + (sqr_y+1)*SQUARE_SEPARATOR + sqr_y*(_square_size_px)+(_square_size_px>>1);
+    circleR = (int)(_square_size_px*0.4f);
+
+    dist = (int)floor( sqrt(SQR(_mouse_pos_x - circleX) + SQR(_mouse_pos_y - circleY)));
+
+    if (dist < circleR)
+    {
+      *_pt_x = sqr_x;
+      *_pt_y = sqr_y;
+    }
+    else
+    {
+      *_pt_x = -1;
+      *_pt_y = -1;
+    }
 }
 
 /**
