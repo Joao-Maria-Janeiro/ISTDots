@@ -32,6 +32,7 @@ void RenderPoints(int [][MAX_BOARD_POS], int, int, int [], int, SDL_Renderer *);
 void RenderStats( SDL_Renderer *, TTF_Font *, int [], int , int );
 void filledCircleRGBA(SDL_Renderer * , int , int , int , int , int , int );
 void parameters(int *, int *, int*, int *, int*);
+void render_shuffle(SDL_Renderer *, TTF_Font *);
 
 // definition of some strings: they cannot be changed when the program is executed !
 const char myName[] = "Joao Maria Silva";
@@ -71,7 +72,7 @@ int main( void )
     int mem[STRING_SIZE][STRING_SIZE] = {{0}};
     int validate = 0;
     int color = 0;
-    int derrotas, victorias = 0;
+    int derrotas, vitorias = 0;
     int count1 = 0;
 
     int pontos[MAX_BOARD_POS] = {0};
@@ -143,7 +144,6 @@ int main( void )
                     case SDLK_n:
                         game_board(board, board_pos_x, board_pos_y, int_colors);
                         move_reset(board_pos_x, board_pos_y, move);
-                        //derrotas++;
                         board_pos_y = board_pos_y_1;
                         board_pos_x = board_pos_x_1;
                         int_colors = int_colors_1;
@@ -156,7 +156,7 @@ int main( void )
                        break;
                     case SDLK_q:
                         quit = 1;
-                        filecreate(jogos, jogo, username, plays);
+                        filecreate(jogos, jogo, username, plays, vitorias, derrotas);
                         jogo = 0;
                         break;
                     case SDLK_u:
@@ -228,11 +228,13 @@ int main( void )
                     jogos[jogo] = 1;
                     plays[jogo] = jogadas1 - jogadas;
                     jogo ++;
+                    vitorias++;
                 }
                 if(derrota == 1){
                     jogos[jogo] = 0;
                     plays[jogo] = jogadas1 - jogadas;
                     jogo ++;
+                    derrotas++;
                 }
                 move_reset(board_pos_x, board_pos_y, move);
                 mem_pos = 0;
@@ -267,7 +269,7 @@ int main( void )
         }
 
         do_shuffle = shuffle(board, board_pos_x, board_pos_y);
-        printf("O shuffle é : %d\n", do_shuffle);
+//        printf("O shuffle é : %d\n", do_shuffle);
 
         // render game table
         square_size_px = RenderTable( board_pos_x, board_pos_y, board_size_px, serif, imgs, renderer);
@@ -277,6 +279,12 @@ int main( void )
         RenderStats( renderer, serif, pontos, int_colors, jogadas);
         //Render game result
         render_squares(renderer, serif_big, vitoria, derrota, do_shuffle);
+        //If shuffle is one, render the shuffle text and generates a new random board
+        if(do_shuffle == 1){
+            render_shuffle(renderer, serif_big);
+            SDL_Delay(400);
+            game_board(board, board_pos_x, board_pos_y, int_colors);
+        }
         // render in the screen all changes above
         SDL_RenderPresent(renderer);
         // add a delay
@@ -571,7 +579,7 @@ maximum_y = 0;
 
 }
 
-void filecreate(int jogos[STRING_SIZE], int jogo, char username[STRING_SIZE], int plays[STRING_SIZE]){
+void filecreate(int jogos[STRING_SIZE], int jogo, char username[STRING_SIZE], int plays[STRING_SIZE], int vitorias, int derrotas){
     int i = 0;
     FILE *f = fopen("stats.txt", "w");
     if (f == NULL)
@@ -581,7 +589,9 @@ void filecreate(int jogos[STRING_SIZE], int jogo, char username[STRING_SIZE], in
     }
 
     fprintf(f, "Username: %s\n", username);
-    fprintf(f, "You played %d games\n", jogo);
+    fprintf(f, "Games: %d\n", jogo);
+    fprintf(f, "Losses: %d\n", derrotas);
+    fprintf(f, "Victories: %d\n", vitorias);
 
     for(i = 0; i < jogo; i++){
         if(jogos[i] == 0){
@@ -655,13 +665,13 @@ void render_squares( SDL_Renderer *_renderer, TTF_Font *_font, int vitoria, int 
         RenderText(180, 350, "Press n to play another game", _font, &blue, _renderer);
     }
 
-    if(do_shuffle == 1){
-    //Renders the square to display the text
-        SDL_Rect victoria = {80, 200, 700, 500};
-        SDL_RenderFillRect( _renderer, &victoria);
-    //Render Defeat text
-        RenderText(340, 300, "SHUFFLE", _font, &blue, _renderer);
-    }
+//    if(do_shuffle == 1){
+//    //Renders the square to display the text
+//        SDL_Rect victoria = {80, 200, 700, 500};
+//        SDL_RenderFillRect( _renderer, &victoria);
+//    //Render Defeat text
+//        RenderText(340, 300, "SHUFFLE", _font, &blue, _renderer);
+//    }
 
 }
 
@@ -692,6 +702,18 @@ int shuffle(int board[MAX_BOARD_POS][MAX_BOARD_POS], int board_pos_x, int board_
 //    printf("Shuffle\n");
 return 1;
 //return 0;
+}
+
+void render_shuffle(SDL_Renderer *_renderer, TTF_Font *_font){
+    SDL_Color blue = {30,144,255};
+    SDL_SetRenderDrawColor( _renderer, 250, 250, 210, 0.5);
+
+    //Renders the square to display the text
+        SDL_Rect victoria = {80, 200, 700, 500};
+        SDL_RenderFillRect( _renderer, &victoria);
+    //Render Defeat text
+        RenderText(340, 300, "SHUFFLE", _font, &blue, _renderer);
+
 }
 /**
  * ProcessMouseEvent: gets the square pos based on the click positions !
