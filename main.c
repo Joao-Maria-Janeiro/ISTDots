@@ -318,7 +318,7 @@ void parameters(int *rows1, int *columns1, int *int_colors1, int pontos[MAX_BOAR
         if(rows > 15 || rows < 5 || columns > 15 || columns < 5){
             printf("\nOs valores do tabuleiro têm de estar compreeendidos entre 5 e 15\n");
         }
-    }while(rows > 15 || rows < 2 || columns > 15 || columns < 2);
+    }while(rows > 15 || rows < 5 || columns > 15 || columns < 5);
 
 
 //    printf("\nQuantas cores quer no jogo: ");
@@ -1053,7 +1053,7 @@ SDL_Window* CreateWindow(int width, int height)
 {
     SDL_Window *window;
     // init window
-    window = SDL_CreateWindow( "1024", WINDOW_POSX, WINDOW_POSY, width, height, 0 );
+    window = SDL_CreateWindow( "ISTDots", WINDOW_POSX, WINDOW_POSY, width, height, 0 );
     // check for error !
     if ( window == NULL )
     {
