@@ -276,7 +276,7 @@ int main( void )
         //Render stats
         RenderStats( renderer, serif, pontos, int_colors, jogadas);
         //Render game result
-        render_squares(renderer, serif_big, vitoria, derrota);
+        render_squares(renderer, serif_big, vitoria, derrota, do_shuffle);
         // render in the screen all changes above
         SDL_RenderPresent(renderer);
         // add a delay
@@ -632,7 +632,7 @@ int defeat(int pontos[MAX_BOARD_POS], int jogadas){
     }
 }
 
-void render_squares( SDL_Renderer *_renderer, TTF_Font *_font, int vitoria, int derrota){
+void render_squares( SDL_Renderer *_renderer, TTF_Font *_font, int vitoria, int derrota, int do_shuffle){
     SDL_Color blue = {30,144,255};
     SDL_SetRenderDrawColor( _renderer, 250, 250, 210, 0.5);
 
@@ -653,6 +653,14 @@ void render_squares( SDL_Renderer *_renderer, TTF_Font *_font, int vitoria, int 
     //Render Defeat text
         RenderText(340, 300, "DEFEAT", _font, &blue, _renderer);
         RenderText(180, 350, "Press n to play another game", _font, &blue, _renderer);
+    }
+
+    if(do_shuffle == 1){
+    //Renders the square to display the text
+        SDL_Rect victoria = {80, 200, 700, 500};
+        SDL_RenderFillRect( _renderer, &victoria);
+    //Render Defeat text
+        RenderText(340, 300, "SHUFFLE", _font, &blue, _renderer);
     }
 
 }
