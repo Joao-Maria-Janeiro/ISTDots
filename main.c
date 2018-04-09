@@ -85,6 +85,7 @@ int main( void )
     int plays[STRING_SIZE] = {0};
 
     int do_shuffle = 0;
+    int game_on = 1;
 
     board_pos_x = 5;
     board_pos_y = 7;
@@ -142,6 +143,12 @@ int main( void )
                 switch ( event.key.keysym.sym )
                 {
                     case SDLK_n:
+                        if(game_on == 1){
+                            jogos[jogo] = 0;
+                            plays[jogo] = jogadas1 - jogadas;
+                            jogo ++;
+                            derrotas++;
+                        }
                         game_board(board, board_pos_x, board_pos_y, int_colors);
                         move_reset(board_pos_x, board_pos_y, move);
                         board_pos_y = board_pos_y_1;
@@ -151,6 +158,7 @@ int main( void )
                         for( i = 0; i < MAX_BOARD_POS; i++){
                             pontos[i] = pontos1[i];
                         }
+                        game_on = 1;
                         vitoria = 0;
                         derrota = 0;
                        break;
@@ -229,12 +237,14 @@ int main( void )
                     plays[jogo] = jogadas1 - jogadas;
                     jogo ++;
                     vitorias++;
+                    game_on = 0;
                 }
                 if(derrota == 1){
                     jogos[jogo] = 0;
                     plays[jogo] = jogadas1 - jogadas;
                     jogo ++;
                     derrotas++;
+                    game_on = 0;
                 }
                 move_reset(board_pos_x, board_pos_y, move);
                 mem_pos = 0;
