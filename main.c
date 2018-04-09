@@ -668,17 +668,16 @@ int shuffle(int board[MAX_BOARD_POS][MAX_BOARD_POS], int board_pos_x, int board_
                     return 0;
             }
         }
-        else if( i == board_pos_x-1 && j == board_pos_y-1){
+        else if( i != board_pos_x-1 && j == board_pos_y-1){
             if(board[i][j] == board[i+1][j]){
 //                printf("DON'T Shuffle\n");
                     return 0;
             }
         }
-        else if{
-            if(j != board_pos_y-1)
-            if(board[i][j] == board[i][j+1]){
-                return 0;
-            }
+        else if(i == board_pos_x-1 && j != board_pos_y-1){
+                if(board[i][j] == board[i][j+1]){
+                    return 0;
+                }
         }
 
     }}
