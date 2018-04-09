@@ -83,6 +83,8 @@ int main( void )
     int vitoria, derrota = 0;
     int plays[STRING_SIZE] = {0};
 
+    int do_shuffle = 0;
+
     board_pos_x = 5;
     board_pos_y = 7;
     // some examples
@@ -232,7 +234,6 @@ int main( void )
                     plays[jogo] = jogadas1 - jogadas;
                     jogo ++;
                 }
-                shuffle(board, board_pos_x, board_pos_y);
                 move_reset(board_pos_x, board_pos_y, move);
                 mem_pos = 0;
                 validate = 0;
@@ -265,7 +266,8 @@ int main( void )
 
         }
 
-
+        do_shuffle = shuffle(board, board_pos_x, board_pos_y);
+        printf("O shuffle é : %d\n", do_shuffle);
 
         // render game table
         square_size_px = RenderTable( board_pos_x, board_pos_y, board_size_px, serif, imgs, renderer);
@@ -316,7 +318,7 @@ void parameters(int *rows1, int *columns1, int *int_colors1, int pontos[MAX_BOAR
         if(rows > 15 || rows < 5 || columns > 15 || columns < 5){
             printf("\nOs valores do tabuleiro têm de estar compreeendidos entre 5 e 15\n");
         }
-    }while(rows > 15 || rows < 5 || columns > 15 || columns < 5);
+    }while(rows > 15 || rows < 2 || columns > 15 || columns < 2);
 
 
 //    printf("\nQuantas cores quer no jogo: ");
@@ -655,43 +657,33 @@ void render_squares( SDL_Renderer *_renderer, TTF_Font *_font, int vitoria, int 
 
 }
 
-void shuffle(int board[MAX_BOARD_POS][MAX_BOARD_POS], int board_pos_x, int board_pos_y){
+int shuffle(int board[MAX_BOARD_POS][MAX_BOARD_POS], int board_pos_x, int board_pos_y){
     int i, j = 0;
 
     for(i = 0; i < board_pos_x; i++){
     for(j = 0; j < board_pos_y; j++){
-        if( board[i][j] != board[i+1][j] && board[i][j] != board[i-1][j] && board[i][j] != board[i][j+1] && board[i][j] != board[i][j-1]){
-//            return 1;
-            printf("Shuffle");
-        }
-        else if(i == 0 && j == 0){
-            if(board[i][j] != board[i][j+1] && board[i][j] != board[i+1][j]){
-//                return 1;
-                printf("Shuffle");
+        if( i!= board_pos_x-1 && j != board_pos_y-1){
+            if(board[i][j] == board[i][j+1] || board[i][j] == board[i+1][j]){
+//                printf("don't Shuffle\n");
+                    return 0;
             }
         }
-        else if(i == 0 && j == board_pos_y){
-            if(board[i][j] != board[i][j+1] && board[i][j] != board[i-1][j]){
-//                return 1;
-                printf("Shuffle");
+        else if( i == board_pos_x-1 && j == board_pos_y-1){
+            if(board[i][j] == board[i+1][j]){
+//                printf("DON'T Shuffle\n");
+                    return 0;
+            }
         }
-    }
-        else if(i == board_pos_x && j == 0){
-            if(board[i][j] != board[i][j-1] && board[i][j] != board[i+1][j]){
-//                return 1;
-                printf("Shuffle");
+        else if{
+            if(j != board_pos_y-1)
+            if(board[i][j] == board[i][j+1]){
+                return 0;
+            }
         }
-    }
-
-       else if(i == board_pos_x && j == board_pos_y){
-            if(board[i][j] != board[i][j-1] && board[i][j] != board[i-1][j]){
-//                return 1;
-                printf("Shuffle");
-        }
-    }
-
 
     }}
+//    printf("Shuffle\n");
+return 1;
 //return 0;
 }
 /**
