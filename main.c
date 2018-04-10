@@ -40,7 +40,7 @@ void movedots(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS], int [MAX_BOARD_POS
 int square_detect(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS], int [MAX_BOARD_POS][MAX_BOARD_POS], int , int , int );
 int square_validate( int [STRING_SIZE][STRING_SIZE], int );
 int remove_same_color(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS], int [MAX_BOARD_POS][MAX_BOARD_POS], int , int *);
-void remove_inside_square( int [STRING_SIZE][STRING_SIZE], int , int [MAX_BOARD_POS][MAX_BOARD_POS], int , int [MAX_BOARD_POS][MAX_BOARD_POS]);
+void remove_inside_square( int [STRING_SIZE][STRING_SIZE], int , int [MAX_BOARD_POS][MAX_BOARD_POS], int , int [MAX_BOARD_POS][MAX_BOARD_POS], int *, int *, int *, int *, int *);
 void filecreate(int [], int , char [], int [], int , int);
 int victory(int []);
 int defeat(int [], int );
@@ -101,6 +101,12 @@ int main( void )
 
     int do_shuffle = 0;
     int game_on = 1;
+
+    int count_0 = 0;
+    int count_1 = 0;
+    int count_2 = 0;
+    int count_3 = 0;
+    int count_4 = 0;
 
     board_pos_x = 5;
     board_pos_y = 7;
@@ -197,13 +203,18 @@ int main( void )
                 if(valid == 0 && count >=2 && valid_pos == 0){
                     jogadas --;
                     if ( square == 0 && validate != 1){
-                        remove_inside_square(mem, mem_pos, board, color, move);
+                        remove_inside_square(mem, mem_pos, board, color, move, &count_0, &count_1, &count_2, &count_3, &count_4);
                         remove_same_color(board_pos_x, board_pos_y, board, move, int_colors, &count1);
                         if(pontos[color] - count1 < 0){
                             pontos[color] = 0;
                         }else{
                             pontos[color] = pontos[color] - count1;
                         }
+//                        pontos[0] = pontos[0] - count_0;
+//                        pontos[1] = pontos[1] - count_1;
+//                        pontos[2] = pontos[2] - count_2;
+//                        pontos[3] = pontos[3] - count_3;
+//                        pontos[4] = pontos[4] - count_4;
                     }
                     else{
                         if(pontos[color] - count < 0){
@@ -475,15 +486,16 @@ int remove_same_color(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS]
 
 }
 
-void remove_inside_square( int mem[STRING_SIZE][STRING_SIZE], int mem_pos, int board[MAX_BOARD_POS][MAX_BOARD_POS], int color, int move[MAX_BOARD_POS][MAX_BOARD_POS] ){
+void remove_inside_square( int mem[STRING_SIZE][STRING_SIZE], int mem_pos, int board[MAX_BOARD_POS][MAX_BOARD_POS], int color, int move[MAX_BOARD_POS][MAX_BOARD_POS], int *count_0, int *count_1, int *count_2, int *count_3, int *count_4){
     int i, j, maximum_x, maximum_y = 0;
     int minimum_x = 40;
     int minimum_y = 40;
-    int color_0 = 0;
-    int color_1 = 0;
-    int color_2 = 0;
-    int color_3 = 0;
-    int color_4 = 0;
+
+    int count_0_1 = 0;
+    int count_1_1 = 0;
+    int count_2_1 = 0;
+    int count_3_1 = 0;
+    int count_4_1 = 0;
 
     maximum_x = 0;
     maximum_y = 0;
@@ -516,23 +528,28 @@ void remove_inside_square( int mem[STRING_SIZE][STRING_SIZE], int mem_pos, int b
     for(i = minimum_x; i <= maximum_x; i++){
     for(j = minimum_y; j <= maximum_y; j++){
         if(board[i][j] == 0){
-            color_0++;
+            count_0_1++;
         }
         if(board[i][j] == 1){
-            color_1++;
+            count_1_1++;
         }
         if(board[i][j] == 2){
-            color_2++;
+            count_2_1++;
         }
         if(board[i][j] == 3){
-            color_3++;
+            count_3_1++;
         }
         if(board[i][j] == 4){
-            color_4++;
+            count_4_1++;
         }
         move[i][j] = color;
     }
     }
+    *count_0 = count_0_1;
+    *count_1 = count_1_1;
+    *count_2 = count_2_1;
+    *count_3 = count_3_1;
+    *count_4 = count_4_1;
 }
 
 void filecreate(int jogos[STRING_SIZE], int jogo, char username[STRING_SIZE], int plays[STRING_SIZE], int vitorias, int derrotas){
