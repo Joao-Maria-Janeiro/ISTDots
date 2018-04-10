@@ -17,7 +17,6 @@
 #define MAX_BOARD_POS 15      // maximum size of the board
 #define MAX_COLORS 5
 #define MARGIN 5
-#define SQR(a)      (a)*(a)
 
 // declaration of the functions related to graphical issues
 void InitEverything(int , int , TTF_Font **, SDL_Surface **, SDL_Window ** , SDL_Renderer **, TTF_Font ** );
@@ -105,18 +104,7 @@ int main( void )
 
     board_pos_x = 5;
     board_pos_y = 7;
-    // some examples
-//    board[0][0] = 1;
-//    board[2][0] = 2;
-//    board[3][3] = 3;
-//    board[4][4] = 4;
-//    board[4][0] = 1;
-//    board[3][0] = 1;
-//    board[0][1] = 1;
 
-
-//    printf( "Whats your name? " );
-//   fgets( username, sizeof( username ), stdin );
 
    do{
     printf( "Whats your name? " );
@@ -203,36 +191,11 @@ int main( void )
                 ProcessMouseEvent(event.button.x, event.button.y, board_size_px, square_size_px, &pt_x, &pt_y);
                 printf("Button up: %d %d\n", pt_x, pt_y);
                 play = 2;
-
-//                    for(j = 0; j < board_pos_y; j++){
-//                    for(i = 0; i < board_pos_x; i++){
-//                       printf("%d ", move[i][j]); //Tive de dar printf ao contrário pois as linhas estavam a ficar nas colunas, assim o print já está correto!
-//                        }
-//                        printf("\n");
-//                        }
-//
-//                    printf("-----------------\n");
-//
-//
-//                    for(i = 0; i < mem_pos; i++){
-//                       printf("%d ", mem[i][0]);
-//                        printf("%d", mem[i][1]);
-//                        printf("\n");
-//                        }
-
                 valid = evaluate_color(board_pos_x, board_pos_y, move, &count, &color);
-//                printf("A jogada vale: %d\n", valid);
                 printf("Rebentou %d bolas\n", count);
                 valid_pos = evaluate_pos(board_pos_x, board_pos_y, move);
-//                printf("A posicao vale: %d", valid_pos);
                 if(valid == 0 && count >=2 && valid_pos == 0){
                     jogadas --;
-//                    if(pontos[color] - count < 0){
-//                        pontos[color] = 0;
-//                    }else{
-//                        pontos[color] = pontos[color] - count;
-//                        }
-//                printf("%d", square); // Se for quadrado retorna 0
                     if ( square == 0 && validate != 1){
                         remove_inside_square(mem, mem_pos, board, color, move);
                         remove_same_color(board_pos_x, board_pos_y, board, move, int_colors, &count1);
@@ -275,11 +238,9 @@ int main( void )
             else if ( event.type == SDL_MOUSEMOTION )
             {
                 ProcessMouseEvent(event.button.x, event.button.y, board_size_px, square_size_px, &pt_x, &pt_y);
-                //printf("Mouse: %d %d\n", pt_x, pt_y);
                 if( play == 1 ){
                     if( lastXpos != pt_x || lastYpos != pt_y){
                     square = square_detect(board_pos_x, board_pos_y, board, move, int_colors, pt_x, pt_y);
-//                    printf("%d", square);
                     move[pt_x][pt_y] = board[pt_x][pt_y];
                     SDL_RenderDrawLine(renderer, event.button.x, event.button.y, event.button.x+5, event.button.y +2);
                     SDL_RenderPresent(renderer);
@@ -299,20 +260,18 @@ int main( void )
 
         }
 
-        do_shuffle = shuffle(board, board_pos_x, board_pos_y);
-//        printf("O shuffle é : %d\n", do_shuffle);
-
+        do_shuffle = shuffle(board, board_pos_x, board_pos_y); //Returns 1 if a shuffle is verified
         // render game table
         square_size_px = RenderTable( board_pos_x, board_pos_y, board_size_px, serif, imgs, renderer);
         // render board
         RenderPoints(board, board_pos_x, board_pos_y, board_size_px, square_size_px, renderer);
         //Change the color of the selected dots
-        rasto(mem, mem_pos, renderer);
+//        rasto(mem, mem_pos, renderer);
         //Render stats
         RenderStats( renderer, serif, pontos, int_colors, jogadas);
         //Render game result
         render_squares(renderer, serif_big, vitoria, derrota, do_shuffle);
-        //If shuffle is one, render the shuffle text and generates a new random board
+        //If shuffle is equal to one, render the shuffle text and generates a new random board
         if(do_shuffle == 1){
             render_shuffle(renderer, serif_big);
             SDL_Delay(400);
@@ -517,12 +476,17 @@ int remove_same_color(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS]
 }
 
 void remove_inside_square( int mem[STRING_SIZE][STRING_SIZE], int mem_pos, int board[MAX_BOARD_POS][MAX_BOARD_POS], int color, int move[MAX_BOARD_POS][MAX_BOARD_POS] ){
-int i, j, maximum_x, maximum_y = 0;
-int minimum_x = 40;
-int minimum_y = 40;
+    int i, j, maximum_x, maximum_y = 0;
+    int minimum_x = 40;
+    int minimum_y = 40;
+    int color_0 = 0;
+    int color_1 = 0;
+    int color_2 = 0;
+    int color_3 = 0;
+    int color_4 = 0;
 
-maximum_x = 0;
-maximum_y = 0;
+    maximum_x = 0;
+    maximum_y = 0;
     for(i = 0; i < mem_pos; i++){
         if( mem[i][0] > maximum_x){
             maximum_x = mem[i][0];
@@ -551,10 +515,24 @@ maximum_y = 0;
 
     for(i = minimum_x; i <= maximum_x; i++){
     for(j = minimum_y; j <= maximum_y; j++){
+        if(board[i][j] == 0){
+            color_0++;
+        }
+        if(board[i][j] == 1){
+            color_1++;
+        }
+        if(board[i][j] == 2){
+            color_2++;
+        }
+        if(board[i][j] == 3){
+            color_3++;
+        }
+        if(board[i][j] == 4){
+            color_4++;
+        }
         move[i][j] = color;
     }
     }
-
 }
 
 void filecreate(int jogos[STRING_SIZE], int jogo, char username[STRING_SIZE], int plays[STRING_SIZE], int vitorias, int derrotas){
@@ -694,25 +672,25 @@ void render_shuffle(SDL_Renderer *_renderer, TTF_Font *_font){
 
 }
 
-void rasto(int mem[STRING_SIZE][STRING_SIZE], int mem_pos, SDL_Renderer* _renderer){
-
-    SDL_Color black = { 0, 0, 0 }; // black
-    SDL_Color light = { 205, 193, 181 };
-    SDL_Color dark = { 120, 110, 102 };
-    SDL_Rect tableSrc, tableDest, board, board_square;
-    int height, board_size, square_size_px, max_pos;
-
-    // renders the squares where the numbers will appear
-    SDL_SetRenderDrawColor(_renderer, black.r, black.g, black.b, black.a );
-
-    // iterate over all squares
-    board_square.x = board.x + mem[mem_pos][0]*SQUARE_SEPARATOR + mem[mem_pos][0]*square_size_px;
-    board_square.y = board.y + mem[mem_pos][1]*SQUARE_SEPARATOR + mem[mem_pos][1]*square_size_px;
-    board_square.w = square_size_px;
-    board_square.h = square_size_px;
-    SDL_RenderFillRect(_renderer, &board_square);
-
-}
+//void rasto(int mem[STRING_SIZE][STRING_SIZE], int mem_pos, SDL_Renderer* _renderer){
+//
+//    SDL_Color black = { 0, 0, 0 }; // black
+//    SDL_Color light = { 205, 193, 181 };
+//    SDL_Color dark = { 120, 110, 102 };
+//    SDL_Rect tableSrc, tableDest, board, board_square;
+//    int height, board_size, square_size_px, max_pos;
+//
+//    // renders the squares where the numbers will appear
+//    SDL_SetRenderDrawColor(_renderer, black.r, black.g, black.b, black.a );
+//
+//    // iterate over all squares
+//    board_square.x = board.x + mem[mem_pos][0]*SQUARE_SEPARATOR + mem[mem_pos][0]*square_size_px;
+//    board_square.y = board.y + mem[mem_pos][1]*SQUARE_SEPARATOR + mem[mem_pos][1]*square_size_px;
+//    board_square.w = square_size_px;
+//    board_square.h = square_size_px;
+//    SDL_RenderFillRect(_renderer, &board_square);
+//
+//}
 /**
  * ProcessMouseEvent: gets the square pos based on the click positions !
  * \param _mouse_pos_x position of the click on pixel coordinates
@@ -725,8 +703,6 @@ void rasto(int mem[STRING_SIZE][STRING_SIZE], int mem_pos, SDL_Renderer* _render
 void ProcessMouseEvent(int _mouse_pos_x, int _mouse_pos_y, int _board_size_px[], int _square_size_px,
         int *_pt_x, int *_pt_y )
 {
-    int sqr_x = 0, sqr_y = 0, dist = 0;
-    int circleX = 0, circleY = 0, circleR = 0;
     // corner of the board
     int x_corner = (TABLE_SIZE - _board_size_px[0]) >> 1;
     int y_corner = (TABLE_SIZE - _board_size_px[1] - 15);
@@ -741,26 +717,11 @@ void ProcessMouseEvent(int _mouse_pos_x, int _mouse_pos_y, int _board_size_px[],
     }
 
     // computes the square where the mouse position is
-    sqr_x = (_mouse_pos_x - x_corner) / (_square_size_px + SQUARE_SEPARATOR);
-    sqr_y = (_mouse_pos_y - y_corner) / (_square_size_px + SQUARE_SEPARATOR);
+    _mouse_pos_x = _mouse_pos_x - x_corner;
+    _mouse_pos_y = _mouse_pos_y - y_corner;
 
-    //compute the circle parameters
-    circleX = x_corner + (sqr_x+1)*SQUARE_SEPARATOR + sqr_x*(_square_size_px)+(_square_size_px>>1);
-    circleY = y_corner + (sqr_y+1)*SQUARE_SEPARATOR + sqr_y*(_square_size_px)+(_square_size_px>>1);
-    circleR = (int)(_square_size_px*0.4f);
-
-    dist = (int)floor( sqrt(SQR(_mouse_pos_x - circleX) + SQR(_mouse_pos_y - circleY)));
-
-    if (dist < circleR)
-    {
-      *_pt_x = sqr_x;
-      *_pt_y = sqr_y;
-    }
-    else
-    {
-      *_pt_x = -1;
-      *_pt_y = -1;
-    }
+    *_pt_x = _mouse_pos_x / (_square_size_px + SQUARE_SEPARATOR);
+    *_pt_y = _mouse_pos_y / (_square_size_px + SQUARE_SEPARATOR);
 }
 
 /**
