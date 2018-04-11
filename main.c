@@ -17,6 +17,7 @@
 #define MAX_BOARD_POS 15      // maximum size of the board
 #define MAX_COLORS 5
 #define MARGIN 5
+#define SQR(a)      (a)*(a)
 
 // declaration of the functions related to graphical issues
 void InitEverything(int , int , TTF_Font **, SDL_Surface **, SDL_Window ** , SDL_Renderer **, TTF_Font ** );
@@ -39,7 +40,7 @@ int evaluate_pos(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS]);
 void movedots(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS], int [MAX_BOARD_POS][MAX_BOARD_POS], int );
 int square_detect(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS], int [MAX_BOARD_POS][MAX_BOARD_POS], int , int , int );
 int square_validate( int [STRING_SIZE][STRING_SIZE], int );
-int remove_same_color(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS], int [MAX_BOARD_POS][MAX_BOARD_POS], int , int *);
+void remove_same_color(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS], int [MAX_BOARD_POS][MAX_BOARD_POS], int , int *);
 void remove_inside_square( int [STRING_SIZE][STRING_SIZE], int , int [MAX_BOARD_POS][MAX_BOARD_POS], int , int [MAX_BOARD_POS][MAX_BOARD_POS], int *, int *, int *, int *, int *);
 void filecreate(int [], int , char [], int [], int , int);
 int victory(int []);
@@ -271,16 +272,18 @@ int main( void )
                 ProcessMouseEvent(event.button.x, event.button.y, board_size_px, square_size_px, &pt_x, &pt_y);
                 if( play == 1 ){
                     if( lastXpos != pt_x || lastYpos != pt_y){
-                    square = square_detect(board_pos_x, board_pos_y, board, move, int_colors, pt_x, pt_y);
-                    move[pt_x][pt_y] = board[pt_x][pt_y];
-                    SDL_RenderDrawLine(renderer, event.button.x, event.button.y, event.button.x+5, event.button.y +2);
-                    SDL_RenderPresent(renderer);
-                    lastXpos = pt_x;
-                    lastYpos = pt_y;
-                    mem[mem_pos][0] = pt_x;
-                    mem[mem_pos][1] = pt_y;
-                    validate = square_validate(mem, mem_pos);//Se for quadrado retorna 0
-                    mem_pos++;
+                        if(pt_x != -1){
+                            square = square_detect(board_pos_x, board_pos_y, board, move, int_colors, pt_x, pt_y);
+                            move[pt_x][pt_y] = board[pt_x][pt_y];
+                            SDL_RenderDrawLine(renderer, event.button.x, event.button.y, event.button.x+5, event.button.y +2);
+                            SDL_RenderPresent(renderer);
+                            lastXpos = pt_x;
+                            lastYpos = pt_y;
+                            mem[mem_pos][0] = pt_x;
+                            mem[mem_pos][1] = pt_y;
+                            validate = square_validate(mem, mem_pos);//Se for quadrado retorna 0
+                            mem_pos++;
+                        }
                     }
 
                 }
@@ -489,7 +492,7 @@ int square_validate( int mem[STRING_SIZE][STRING_SIZE], int mem_pos ){
 return 0;
 }
 
-int remove_same_color(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOARD_POS], int move[MAX_BOARD_POS][MAX_BOARD_POS], int _colors, int *count){
+void remove_same_color(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOARD_POS], int move[MAX_BOARD_POS][MAX_BOARD_POS], int _colors, int *count){
     int i, j = 0;
     int aux = 9;
     int count1 = 0;
@@ -767,6 +770,8 @@ void update_points(int pontos[MAX_BOARD_POS], int color, int count_0, int count_
 void ProcessMouseEvent(int _mouse_pos_x, int _mouse_pos_y, int _board_size_px[], int _square_size_px,
         int *_pt_x, int *_pt_y )
 {
+    int sqr_x = 0, sqr_y = 0, dist = 0;
+    int circleX = 0, circleY = 0, circleR = 0;
     // corner of the board
     int x_corner = (TABLE_SIZE - _board_size_px[0]) >> 1;
     int y_corner = (TABLE_SIZE - _board_size_px[1] - 15);
@@ -781,12 +786,28 @@ void ProcessMouseEvent(int _mouse_pos_x, int _mouse_pos_y, int _board_size_px[],
     }
 
     // computes the square where the mouse position is
-    _mouse_pos_x = _mouse_pos_x - x_corner;
-    _mouse_pos_y = _mouse_pos_y - y_corner;
+    sqr_x = (_mouse_pos_x - x_corner) / (_square_size_px + SQUARE_SEPARATOR);
+    sqr_y = (_mouse_pos_y - y_corner) / (_square_size_px + SQUARE_SEPARATOR);
 
-    *_pt_x = _mouse_pos_x / (_square_size_px + SQUARE_SEPARATOR);
-    *_pt_y = _mouse_pos_y / (_square_size_px + SQUARE_SEPARATOR);
+    //compute the circle parameters
+    circleX = x_corner + (sqr_x+1)*SQUARE_SEPARATOR + sqr_x*(_square_size_px)+(_square_size_px>>1);
+    circleY = y_corner + (sqr_y+1)*SQUARE_SEPARATOR + sqr_y*(_square_size_px)+(_square_size_px>>1);
+    circleR = (int)(_square_size_px*0.4f);
+
+    dist = (int)floor( sqrt(SQR(_mouse_pos_x - circleX) + SQR(_mouse_pos_y - circleY)));
+
+    if (dist < circleR)
+    {
+      *_pt_x = sqr_x;
+      *_pt_y = sqr_y;
+    }
+    else
+    {
+      *_pt_x = -1;
+      *_pt_y = -1;
+    }
 }
+
 
 /**
  * RenderPoints: renders the board
