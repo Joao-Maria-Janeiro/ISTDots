@@ -93,6 +93,7 @@ int main( void )
 
     int pontos[MAX_BOARD_POS] = {0};
     int pontos1[MAX_BOARD_POS] = {0};
+    int pontos_undo[MAX_BOARD_POS] = {0};
 
     int board_pos_x_1, board_pos_y_1, int_colors_1, jogadas1 = 0;
     int jogos[STRING_SIZE] = {2};
@@ -108,6 +109,9 @@ int main( void )
     int count_2 = 0;
     int count_3 = 0;
     int count_4 = 0;
+    int board_undo[MAX_BOARD_POS][MAX_BOARD_POS] = {{0}};
+    int jogadas_undo = 0;
+
 
     board_pos_x = 5;
     board_pos_y = 7;
@@ -179,7 +183,16 @@ int main( void )
                         jogo = 0;
                         break;
                     case SDLK_u:
-                        // todo
+                        for(i= 0; i < board_pos_x; i++){
+                            for(j= 0; j < board_pos_y; j++){
+                                board[i][j] = board_undo[i][j];
+                            }
+                        }
+                        for( i = 0; i < MAX_BOARD_POS; i++){
+                            pontos[i] = pontos_undo[i];
+                        }
+                        jogadas = jogadas_undo;
+                        break;
                     default:
                         break;
                 }
@@ -192,6 +205,16 @@ int main( void )
                 play = 1;
                 lastXpos = 30;
                 lastYpos = 30;
+                for(i= 0; i < board_pos_x; i++){
+                    for(j= 0; j < board_pos_y; j++){
+                        board_undo[i][j] = board[i][j];
+                    }
+                }
+                for( i = 0; i < MAX_BOARD_POS; i++){
+                    pontos_undo[i] = pontos[i];
+                }
+
+                jogadas_undo = jogadas;
             }
             else if ( event.type == SDL_MOUSEBUTTONUP )
             {
@@ -307,31 +330,40 @@ void parameters(int *rows1, int *columns1, int *int_colors1, int pontos[MAX_BOAR
 
     int rows, columns, int_colors, jogadas = 0;
     int i = 0;
+    char temp[STRING_SIZE] = "\0";
 
     do{
         printf("Qual é o tamanho do tabuleiro que quer(rows * columns): ");
-        scanf("%d %d", &rows, &columns);
+//        scanf("%d %d", &rows, &columns);
+        fgets(temp, STRING_SIZE, stdin);
+        sscanf(temp, "%d %d", &rows, &columns);
             if(rows > 15 || rows < 5 || columns > 15 || columns < 5){
                 printf("\nOs valores do tabuleiro têm de estar compreeendidos entre 5 e 15\n");
             }
     }while(rows > 15 || rows < 5 || columns > 15 || columns < 5);
 
 
-    do{
+do{
         printf("\nQuantas cores quer no jogo: ");
-        scanf(" %d", &int_colors);
-            if(int_colors > 5){
+        fgets(temp, STRING_SIZE, stdin);
+        sscanf(temp, " %d", &int_colors);
+//        scanf(" %d", &int_colors);
+            if(int_colors > 5 || int_colors < 1){
                 printf("\nNão podem existir mais que 5 cores no jogo");
             }
-    }while(int_colors > 5);
+    }while(int_colors > 5 || int_colors < 1);
 
     for( i = 0; i < int_colors; i++){
         printf("\nNúmero de pontos a alcançar na cor %d: ", i+1);
-        scanf(" %d", &pontos[i]);
-            while( pontos[i] > 99){
+//        scanf(" %d", &pontos[i]);
+        fgets(temp, STRING_SIZE, stdin);
+        sscanf(temp, "%d", &pontos[i]);
+            while( pontos[i] > 99 || pontos[i] < 1){
                 printf("Esse valor é superior a 99");
                 printf("\nNúmero de pontos a alcançar na cor %d: ", i+1);
-                scanf(" %d", &pontos[i]);
+//                scanf(" %d", &pontos[i]);
+                fgets(temp, STRING_SIZE, stdin);
+                sscanf(temp, "%d", &pontos[i]);
             }
 
     }
@@ -339,11 +371,13 @@ void parameters(int *rows1, int *columns1, int *int_colors1, int pontos[MAX_BOAR
 
     do{
         printf("\nNúmero máximo de jogadas: ");
-        scanf(" %d", &jogadas);
-            if(jogadas > 99){
+//        scanf(" %d", &jogadas);
+        fgets(temp, STRING_SIZE, stdin);
+        sscanf(temp, "%d", &jogadas);
+            if(jogadas > 99 || jogadas < 1){
                 printf("\nNão pode ser mais que 99 jogadas");
             }
-    }while(jogadas > 99);
+    }while(jogadas > 99 || jogadas < 1);
 
 
     *rows1 = rows;
