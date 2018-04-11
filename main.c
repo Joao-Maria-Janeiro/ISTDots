@@ -26,7 +26,7 @@ SDL_Window* CreateWindow(int , int );
 SDL_Renderer* CreateRenderer(int , int , SDL_Window *);
 int RenderText(int, int, const char *, TTF_Font *, SDL_Color *, SDL_Renderer *);
 int RenderLogo(int, int, SDL_Surface *, SDL_Renderer *);
-int RenderTable(int, int, int [], TTF_Font *, SDL_Surface **, SDL_Renderer *);
+int RenderTable(int, int, int [], TTF_Font *, SDL_Surface **, SDL_Renderer *, int [MAX_BOARD_POS][MAX_BOARD_POS]);
 void ProcessMouseEvent(int , int , int [], int , int *, int * );
 void RenderPoints(int [][MAX_BOARD_POS], int, int, int [], int, SDL_Renderer *);
 void RenderStats( SDL_Renderer *, TTF_Font *, int [], int , int );
@@ -47,6 +47,7 @@ int defeat(int [], int );
 void render_squares( SDL_Renderer *, TTF_Font *, int , int , int );
 int shuffle(int [MAX_BOARD_POS][MAX_BOARD_POS], int , int );
 void render_shuffle(SDL_Renderer *, TTF_Font *);
+void update_points(int [MAX_BOARD_POS], int , int , int , int , int , int );
 
 
 // definition of some strings: they cannot be changed when the program is executed !
@@ -210,11 +211,7 @@ int main( void )
                         }else{
                             pontos[color] = pontos[color] - count1;
                         }
-//                        pontos[0] = pontos[0] - count_0;
-//                        pontos[1] = pontos[1] - count_1;
-//                        pontos[2] = pontos[2] - count_2;
-//                        pontos[3] = pontos[3] - count_3;
-//                        pontos[4] = pontos[4] - count_4;
+                        update_points(pontos, color, count_0, count_1, count_2, count_3, count_4);
                     }
                     else{
                         if(pontos[color] - count < 0){
@@ -273,11 +270,9 @@ int main( void )
 
         do_shuffle = shuffle(board, board_pos_x, board_pos_y); //Returns 1 if a shuffle is verified
         // render game table
-        square_size_px = RenderTable( board_pos_x, board_pos_y, board_size_px, serif, imgs, renderer);
+        square_size_px = RenderTable( board_pos_x, board_pos_y, board_size_px, serif, imgs, renderer, move);
         // render board
         RenderPoints(board, board_pos_x, board_pos_y, board_size_px, square_size_px, renderer);
-        //Change the color of the selected dots
-//        rasto(mem, mem_pos, renderer);
         //Render stats
         RenderStats( renderer, serif, pontos, int_colors, jogadas);
         //Render game result
@@ -689,25 +684,43 @@ void render_shuffle(SDL_Renderer *_renderer, TTF_Font *_font){
 
 }
 
-//void rasto(int mem[STRING_SIZE][STRING_SIZE], int mem_pos, SDL_Renderer* _renderer){
-//
-//    SDL_Color black = { 0, 0, 0 }; // black
-//    SDL_Color light = { 205, 193, 181 };
-//    SDL_Color dark = { 120, 110, 102 };
-//    SDL_Rect tableSrc, tableDest, board, board_square;
-//    int height, board_size, square_size_px, max_pos;
-//
-//    // renders the squares where the numbers will appear
-//    SDL_SetRenderDrawColor(_renderer, black.r, black.g, black.b, black.a );
-//
-//    // iterate over all squares
-//    board_square.x = board.x + mem[mem_pos][0]*SQUARE_SEPARATOR + mem[mem_pos][0]*square_size_px;
-//    board_square.y = board.y + mem[mem_pos][1]*SQUARE_SEPARATOR + mem[mem_pos][1]*square_size_px;
-//    board_square.w = square_size_px;
-//    board_square.h = square_size_px;
-//    SDL_RenderFillRect(_renderer, &board_square);
-//
-//}
+void update_points(int pontos[MAX_BOARD_POS], int color, int count_0, int count_1, int count_2, int count_3, int count_4){
+    if(color != 0){
+        if(pontos[0] - count_0 < 0){
+            pontos[0] = 0;
+        }else{
+            pontos[0] = pontos[0] - count_0;
+        }
+    }
+    if(color != 1){
+        if(pontos[1] - count_1 < 0){
+            pontos[1] = 0;
+        }else{
+            pontos[1] = pontos[1] - count_1;
+        }
+    }
+    if(color != 2){
+        if(pontos[2] - count_2 < 0){
+            pontos[2] = 0;
+        }else{
+            pontos[2] = pontos[2] - count_2;
+        }
+    }
+    if(color != 3){
+        if(pontos[3] - count_3 < 0){
+            pontos[3] = 0;
+        }else{
+            pontos[3] = pontos[3] - count_3;
+        }
+    }
+    if(color != 4){
+        if(pontos[4] - count_4 < 0){
+            pontos[4] = 0;
+        }else{
+            pontos[4] = pontos[4] - count_4;
+        }
+    }
+}
 /**
  * ProcessMouseEvent: gets the square pos based on the click positions !
  * \param _mouse_pos_x position of the click on pixel coordinates
@@ -858,7 +871,7 @@ void RenderStats( SDL_Renderer *_renderer, TTF_Font *_font, int _goals[], int _n
  * \param _renderer renderer to handle all rendering in a window
  */
 int RenderTable( int _board_pos_x, int _board_pos_y, int _board_size_px[],
-        TTF_Font *_font, SDL_Surface *_img[], SDL_Renderer* _renderer )
+        TTF_Font *_font, SDL_Surface *_img[], SDL_Renderer* _renderer, int move[MAX_BOARD_POS][MAX_BOARD_POS] )
 {
     SDL_Color black = { 0, 0, 0 }; // black
     SDL_Color light = { 205, 193, 181 };
@@ -916,11 +929,15 @@ int RenderTable( int _board_pos_x, int _board_pos_y, int _board_size_px[],
     {
         for ( int j = 0; j < _board_pos_y; j++ )
         {
+            if(move[i][j] != 7){
+                SDL_SetRenderDrawColor(_renderer, black.r, black.g, black.b, black.a );
+            }
             board_square.x = board.x + (i+1)*SQUARE_SEPARATOR + i*square_size_px;
             board_square.y = board.y + (j+1)*SQUARE_SEPARATOR + j*square_size_px;
             board_square.w = square_size_px;
             board_square.h = square_size_px;
             SDL_RenderFillRect(_renderer, &board_square);
+            SDL_SetRenderDrawColor(_renderer, light.r, light.g, light.b, light.a );
         }
     }
 
