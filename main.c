@@ -49,7 +49,7 @@ void render_squares( SDL_Renderer *, TTF_Font *, int , int , int );
 int shuffle(int [MAX_BOARD_POS][MAX_BOARD_POS], int , int );
 void render_shuffle(SDL_Renderer *, TTF_Font *);
 void update_points(int [MAX_BOARD_POS], int , int , int , int , int , int );
-//void do_shuffle_do(int [MAX_BOARD_POS][MAX_BOARD_POS], int , int );
+void do_shuffle_do(int [MAX_BOARD_POS][MAX_BOARD_POS], int , int, int );
 
 
 // definition of some strings: they cannot be changed when the program is executed !
@@ -306,9 +306,8 @@ int main( void )
         render_squares(renderer, serif_big, vitoria, derrota, do_shuffle);
         //If shuffle is equal to one, render the shuffle text and generates a new random board
         if(do_shuffle == 1){
-            //render_shuffle(renderer, serif_big);
-            SDL_Delay(4000);
-            //game_board(board, board_pos_x, board_pos_y, int_colors);
+            render_shuffle(renderer, serif_big);
+            SDL_Delay(400);
             do_shuffle_do(board, board_pos_x, board_pos_y, int_colors);
         }
         // render in the screen all changes above
@@ -791,12 +790,6 @@ void do_shuffle_do(int board[MAX_BOARD_POS][MAX_BOARD_POS], int _lines, int _col
         }
     }
 
-    printf("%d\n", color0);
-    printf("%d\n", color1);
-    printf("%d\n", color2);
-    printf("%d\n", color3);
-    printf("%d\n", color4);
-
     for(i = 0; i < _lines; i++){
         for(j = 0; j < _col; j++){
             while(1){
@@ -831,34 +824,6 @@ void do_shuffle_do(int board[MAX_BOARD_POS][MAX_BOARD_POS], int _lines, int _col
 
     }
 }
-
-
-//// A utility function to swap to integers
-//void swap (int *a, int *b)
-//{
-//    int temp = *a;
-//    *a = *b;
-//    *b = temp;
-//}
-
-//// A function to generate a random permutation of arr[]
-//void do_shuffle_do ( int board[MAX_BOARD_POS][MAX_BOARD_POS], int n )
-//{
-//    // Use a different seed value so that we don't get same
-//    // result each time we run this program
-//    srand ( time(NULL) );
-//
-//    // Start from the last element and swap one by one. We don't
-//    // need to run for the first element that's why i > 0
-//    for (int i = n-1; i > 0; i--)
-//    {
-//        // Pick a random index from 0 to i
-//        int j = rand() % (i+1);
-//
-//        // Swap arr[i] with the element at random index
-//        swap(&board[i], &board[j]);
-//    }
-//}
 
 /**
  * ProcessMouseEvent: gets the square pos based on the click positions !
