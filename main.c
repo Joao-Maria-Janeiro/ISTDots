@@ -45,7 +45,7 @@ void remove_inside_square( int [STRING_SIZE][STRING_SIZE], int , int [MAX_BOARD_
 void filecreate(int [], int , char [], int [], int , int);
 int victory(int []);
 int defeat(int [], int );
-void render_squares( SDL_Renderer *, TTF_Font *, int , int , int );
+void render_squares( SDL_Renderer *, TTF_Font *, int , int );
 int shuffle(int [MAX_BOARD_POS][MAX_BOARD_POS], int , int );
 void render_shuffle(SDL_Renderer *, TTF_Font *);
 void update_points(int [MAX_BOARD_POS], int , int , int , int , int , int );
@@ -329,7 +329,9 @@ int main( void )
     return EXIT_SUCCESS;
 }
 
-
+/**
+ * parameters: gets the user parameters to start the game
+ */
 void parameters(int *rows1, int *columns1, int *int_colors1, int pontos[MAX_BOARD_POS], int *jogadas1){
 
     int rows, columns, int_colors, jogadas = 0;
@@ -338,20 +340,18 @@ void parameters(int *rows1, int *columns1, int *int_colors1, int pontos[MAX_BOAR
 
     do{
         printf("Qual é o tamanho do tabuleiro que quer(rows * columns): ");
-//        scanf("%d %d", &rows, &columns);
         fgets(temp, STRING_SIZE, stdin);
         sscanf(temp, "%d %d", &rows, &columns);
             if(rows > 15 || rows < 5 || columns > 15 || columns < 5){
                 printf("\nOs valores do tabuleiro têm de estar compreeendidos entre 5 e 15\n");
             }
-    }while(rows > 15 || rows < 3 || columns > 15 || columns < 3);
+    }while(rows > 15 || rows < 5 || columns > 15 || columns < 5);
 
 
 do{
         printf("\nQuantas cores quer no jogo: ");
         fgets(temp, STRING_SIZE, stdin);
         sscanf(temp, " %d", &int_colors);
-//        scanf(" %d", &int_colors);
             if(int_colors > 5 || int_colors < 1){
                 printf("\nNão podem existir mais que 5 cores no jogo");
             }
@@ -359,13 +359,11 @@ do{
 
     for( i = 0; i < int_colors; i++){
         printf("\nNúmero de pontos a alcançar na cor %d: ", i+1);
-//        scanf(" %d", &pontos[i]);
         fgets(temp, STRING_SIZE, stdin);
         sscanf(temp, "%d", &pontos[i]);
             while( pontos[i] > 99 || pontos[i] < 1){
                 printf("Esse valor é superior a 99");
                 printf("\nNúmero de pontos a alcançar na cor %d: ", i+1);
-//                scanf(" %d", &pontos[i]);
                 fgets(temp, STRING_SIZE, stdin);
                 sscanf(temp, "%d", &pontos[i]);
             }
@@ -375,7 +373,6 @@ do{
 
     do{
         printf("\nNúmero máximo de jogadas: ");
-//        scanf(" %d", &jogadas);
         fgets(temp, STRING_SIZE, stdin);
         sscanf(temp, "%d", &jogadas);
             if(jogadas > 99 || jogadas < 1){
@@ -390,7 +387,12 @@ do{
     *jogadas1 = jogadas;
 }
 
-
+/**
+ * game_board: randomly generates the game board for the game
+ * \param _lines amount of lines the user selected for the board
+ * \param _col amount of columns the user selected for the board
+ * \param _colors the amount of the colors the user selected for the game
+ */
 void game_board(int board[MAX_BOARD_POS][MAX_BOARD_POS], int _lines, int _col, int _colors){
     int i,j = 0;
     srand(time(NULL));
@@ -402,7 +404,12 @@ void game_board(int board[MAX_BOARD_POS][MAX_BOARD_POS], int _lines, int _col, i
     }
 }
 
-
+/**
+ * move_reset: sets the two dimensional array move to the initial state, all postions equal to 7(because there can only be 5 colors in a game and 7 is a lucky number)
+ * \param board_pos_x amount of lines the user selected for the board
+ * \param board_pos_y amount of columns the user selected for the board
+ * \param move the array we want to reset to 7
+ */
 void move_reset(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX_BOARD_POS]){
     int i,j = 0;
     for(i = 0; i < board_pos_x; i++){
@@ -412,6 +419,14 @@ void move_reset(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX_BO
             }
 }
 
+/**
+ * evaluate_color: checks if all the dots selected have the same color
+ * \param board_pos_x amount of lines the user selected for the board
+ * \param board_pos_y amount of columns the user selected for the board
+ * \param move the array that stores all the dots the player selected and changes the postion values equal to the color of the selected dot from the board
+ * \param *count returns how many dots were selcted in a play
+ * \param *color returns the color of the selected dots
+ */
 int evaluate_color(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX_BOARD_POS], int *count, int *color){
     int aux = 9;
     int i, j, count1 = 0;
@@ -434,6 +449,12 @@ int evaluate_color(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX
             return 0;
 }
 
+/**
+ * evaluate_pos: checks if the selected dots were not connected in a diagonal which is an invalid play, if it was a diagonal return 1
+ * \param board_pos_x amount of lines the user selected for the board
+ * \param board_pos_y amount of columns the user selected for the board
+ * \param move the array that stores all the dots the player selected and changes the postion values equal to the color of the selected dot from the board
+ */
 int evaluate_pos(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX_BOARD_POS]){
     int i, j = 0;
     for(i = 0; i < board_pos_x; i++){
@@ -451,6 +472,17 @@ int evaluate_pos(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX_B
     return 0;
 }
 
+/**
+ * movedots: after a play is validated moves the selcted dots down
+ * \param board_pos_x amount of lines the user selected for the board
+ * \param board_pos_y amount of columns the user selected for the board
+ * \param move the array that stores all the dots the player selected and changes the postion values equal to the color of the selected dot from the board
+ * \param board the game board that has all the color values in it
+ * \param _colors amount of colors in the game
+ * \param color the color selected in the play
+ * \param square is equal to 0 if a square is selcted
+ * \param validate is equal to 0 if a selected square is valid
+ */
 void movedots(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOARD_POS], int move[MAX_BOARD_POS][MAX_BOARD_POS], int _colors, int color, int square, int validate){
     int i, j,d = 0;
     int aux = 9;
@@ -500,6 +532,16 @@ void movedots(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOA
 
 }
 
+/**
+ * square_detect: checks if the postion the user selcted had already been selected in that play, meaning he closed a figure
+ * \param board_pos_x amount of lines the user selected for the board
+ * \param board_pos_y amount of columns the user selected for the board
+ * \param board the game board that has all the color values in it
+ * \param _colors amount of colors in the game
+ * \param move the array that stores all the dots the player selected and changes the postion values equal to the color of the selected dot from the board
+ * \param pt_x the current x value for the postion the mouse is in
+ * \param pt_y the current y value for the postion the mouse is in
+ */
 int square_detect(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOARD_POS], int move[MAX_BOARD_POS][MAX_BOARD_POS], int _colors, int pt_x, int pt_y){
     if( move[pt_x][pt_y] != 7){
             return 0;
@@ -508,6 +550,11 @@ int square_detect(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX
 return 1;
 }
 
+/**
+ * square_validate: checks if the user actaully did a square and didn't just return to the same position in a straight line
+ * \param mem array that stores all the x and y postions the user passed through during a play
+ * \param mem_pos the current/last position in the array during a play
+ */
 int square_validate( int mem[STRING_SIZE][STRING_SIZE], int mem_pos ){
 
     if( mem[mem_pos][0] == mem[mem_pos-2][0] && mem[mem_pos][1] == mem[mem_pos-2][1] ){
@@ -516,6 +563,15 @@ int square_validate( int mem[STRING_SIZE][STRING_SIZE], int mem_pos ){
 return 0;
 }
 
+/**
+ * remove_same_color: changes the value of the move array(so the function movedots can remove them) to the value of the color if the color of that position is equal to the square color
+ * \param board_pos_x amount of lines the user selected for the board
+ * \param board_pos_y amount of columns the user selected for the board
+ * \param board the game board that has all the color values in it
+ * \param _colors amount of colors in the game
+ * \param move the array that stores all the dots the player selected and changes the postion values equal to the color of the selected dot from the board
+ * \param *count returns the amount of dots with the same color as the square
+ */
 void remove_same_color(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOARD_POS], int move[MAX_BOARD_POS][MAX_BOARD_POS], int _colors, int *count){
     int i, j = 0;
     int aux = 9;
@@ -542,6 +598,15 @@ void remove_same_color(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS
 
 }
 
+/**
+ * remove_inside_square: changes the value of the move array(so the function movedots can remove them) to the value of the square color if any dot is inside the square
+ * \param board the game board that has all the color values in it
+ * \param move the array that stores all the dots the player selected and changes the postion values equal to the color of the selected dot from the board
+ * \param mem array that stores all the x and y postions the user passed through during a play
+ * \param mem_pos the current/last position in the array during a play
+ * \param color the color selected in the play
+ * \param *count[0-4] counts the amount of dots of each color inside the square
+ */
 void remove_inside_square( int mem[STRING_SIZE][STRING_SIZE], int mem_pos, int board[MAX_BOARD_POS][MAX_BOARD_POS], int color, int move[MAX_BOARD_POS][MAX_BOARD_POS], int *count_0, int *count_1, int *count_2, int *count_3, int *count_4){
     int i, j, maximum_x, maximum_y = 0;
     int minimum_x = 40;
@@ -608,6 +673,15 @@ void remove_inside_square( int mem[STRING_SIZE][STRING_SIZE], int mem_pos, int b
     *count_4 = count_4_1;
 }
 
+/**
+ * filecreate: generates a stats.txt file with all the stats from the game
+ * \param jogos an array that has 0 if a game is lost and 1 if a game is won
+ * \param jogo amount of games played
+ * \param username is the player selected username
+ * \param plays an array that stores the amount of moves for each game
+ * \param vitorias has the amount of wins the player had in the session
+ * \param derrotas has the amount of losses the player had in the session
+ */
 void filecreate(int jogos[STRING_SIZE], int jogo, char username[STRING_SIZE], int plays[STRING_SIZE], int vitorias, int derrotas){
     int i = 0;
     FILE *f = fopen("stats.txt", "w");
@@ -634,6 +708,10 @@ void filecreate(int jogos[STRING_SIZE], int jogo, char username[STRING_SIZE], in
     fclose(f);
 }
 
+/**
+ * victory: checks if all the user selected objetives were met and returns 1 if so
+ * \param pontos an array that keeps the amount of desired points to achieve for each color in the game(defined by the user in the parameters)
+ */
 int victory(int pontos[MAX_BOARD_POS]){
 
     int i = 0;
@@ -654,6 +732,11 @@ int victory(int pontos[MAX_BOARD_POS]){
 
 }
 
+/**
+ * defeat: checks there are no moves left and if the objectives were not met, if so returns 1
+ * \param pontos an array that keeps the amount of desired points to achieve for each color in the game(defined by the user in the parameters)
+ * \param jogadas has the amount of moves the user chose in the parameters in order to achieve his objectives
+ */
 int defeat(int pontos[MAX_BOARD_POS], int jogadas){
     int i = 0;
     int count = 0;
@@ -671,7 +754,14 @@ int defeat(int pontos[MAX_BOARD_POS], int jogadas){
     }
 }
 
-void render_squares( SDL_Renderer *_renderer, TTF_Font *_font, int vitoria, int derrota, int do_shuffle){
+/**
+ * render_squares: renders a square in the middle of the screen with a defeat or victory message
+ * \param _renderer renderer to handle all rendering in a window
+ * \param _font font to display the text
+ * \param vitoria is 1 if the player won a game
+ * \param derrota is 1 if a game was lost
+ */
+void render_squares( SDL_Renderer *_renderer, TTF_Font *_font, int vitoria, int derrota){
     SDL_Color blue = {30,144,255};
     SDL_SetRenderDrawColor( _renderer, 250, 250, 210, 0.5);
 
@@ -694,16 +784,14 @@ void render_squares( SDL_Renderer *_renderer, TTF_Font *_font, int vitoria, int 
         RenderText(180, 350, "Press n to play another game", _font, &blue, _renderer);
     }
 
-//    if(do_shuffle == 1){
-//    //Renders the square to display the text
-//        SDL_Rect victoria = {80, 200, 700, 500};
-//        SDL_RenderFillRect( _renderer, &victoria);
-//    //Render Defeat text
-//        RenderText(340, 300, "SHUFFLE", _font, &blue, _renderer);
-//    }
-
 }
 
+/**
+ * shuffle: checks if there are no possible moves in the board, if there are no possible moves left return 1
+ * \param board_pos_x amount of lines the user selected for the board
+ * \param board_pos_y amount of columns the user selected for the board
+ * \param board the game board that has all the color values in it
+ */
 int shuffle(int board[MAX_BOARD_POS][MAX_BOARD_POS], int board_pos_x, int board_pos_y){
     int i, j = 0;
 
@@ -733,6 +821,11 @@ int shuffle(int board[MAX_BOARD_POS][MAX_BOARD_POS], int board_pos_x, int board_
 //return 0;
 }
 
+/**
+ * render_shuffle: renders a square in the middle of the screen with a shuffle message
+ * \param _renderer renderer to handle all rendering in a window
+ * \param _font font to display the text
+ */
 void render_shuffle(SDL_Renderer *_renderer, TTF_Font *_font){
     SDL_Color blue = {30,144,255};
     SDL_SetRenderDrawColor( _renderer, 250, 250, 210, 0.5);
@@ -745,6 +838,12 @@ void render_shuffle(SDL_Renderer *_renderer, TTF_Font *_font){
 
 }
 
+/**
+* update_points: updates the objectives of each color after every play
+* \param pontos an array that keeps the amount of desired points to achieve for each color in the game(defined by the user in the parameters)
+* \param color the color selected in the play
+* \param *count[0-4] amount of selected dots in eah play for the color of the play
+*/
 void update_points(int pontos[MAX_BOARD_POS], int color, int count_0, int count_1, int count_2, int count_3, int count_4){
     if(color != 0){
         if(pontos[0] - count_0 < 0){
@@ -783,6 +882,13 @@ void update_points(int pontos[MAX_BOARD_POS], int color, int count_0, int count_
     }
 }
 
+/**
+ * do_shuffle_do: mixes the postions in the board array randomly
+ * \param _lines amount of lines the user selected for the board
+ * \param _col amount of columns the user selected for the board
+ * \param board the game board that has all the color values in it
+ * \param _colors amount of colors in the game
+ */
 void do_shuffle_do(int board[MAX_BOARD_POS][MAX_BOARD_POS], int _lines, int _col, int _colors){
 
     int i,j, aux = 0;
