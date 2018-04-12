@@ -122,6 +122,9 @@ int main( void )
    do{
     printf( "Whats your name? " );
     fgets( username, sizeof( username ), stdin );
+    if(strlen(username) > 8 || strlen(username)  < 1){
+                printf("\nO username tem de ter menos de 8 caracteres\n");
+            }
    }while( strlen(username) < 1 || strlen(username) > 8);
 
 
@@ -303,7 +306,7 @@ int main( void )
         //Render stats
         RenderStats( renderer, serif, pontos, int_colors, jogadas);
         //Render game result
-        render_squares(renderer, serif_big, vitoria, derrota, do_shuffle);
+        render_squares(renderer, serif_big, vitoria, derrota);
         //If shuffle is equal to one, render the shuffle text and generates a new random board
         if(do_shuffle == 1){
             render_shuffle(renderer, serif_big);
