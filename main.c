@@ -37,7 +37,7 @@ void game_board(int [MAX_BOARD_POS][MAX_BOARD_POS], int , int , int );
 void move_reset(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS]);
 int evaluate_color(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS], int *, int *);
 int evaluate_pos(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS]);
-void movedots(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS], int [MAX_BOARD_POS][MAX_BOARD_POS], int );
+void movedots(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS], int [MAX_BOARD_POS][MAX_BOARD_POS], int , int , int , int );
 int square_detect(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS], int [MAX_BOARD_POS][MAX_BOARD_POS], int , int , int );
 int square_validate( int [STRING_SIZE][STRING_SIZE], int );
 void remove_same_color(int , int , int [MAX_BOARD_POS][MAX_BOARD_POS], int [MAX_BOARD_POS][MAX_BOARD_POS], int , int *);
@@ -245,7 +245,7 @@ int main( void )
                             pontos[color] = pontos[color] - count;
                         }
                     }
-                    movedots(board_pos_x, board_pos_y, board, move, int_colors);
+                    movedots(board_pos_x, board_pos_y, board, move, int_colors, color, square, validate);
                 }
                 vitoria = victory(pontos);
                 derrota = defeat(pontos, jogadas);
@@ -451,9 +451,10 @@ int evaluate_pos(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX_B
     return 0;
 }
 
-void movedots(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOARD_POS], int move[MAX_BOARD_POS][MAX_BOARD_POS], int _colors){
+void movedots(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOARD_POS], int move[MAX_BOARD_POS][MAX_BOARD_POS], int _colors, int color, int square, int validate){
     int i, j,d = 0;
     int aux = 9;
+    int aux_1 = 0;
     srand(time(NULL));
 
     for(i = 0; i < board_pos_x; i++){
@@ -465,16 +466,38 @@ void movedots(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOA
         }
     }
 
-    for(i = 0; i < board_pos_x; i++){
-    for(j = 0; j < board_pos_y; j++){
-        if( move[i][j] == aux){
-            for(d = 0; d < j; d++){
-                board[i][j-d] = board[i][j-d-1];
+    if(square == 0 && validate == 0){
+        for(i = 0; i < board_pos_x; i++){
+            for(j = 0; j < board_pos_y; j++){
+                if( move[i][j] == aux ){ //If they have the square color
+                    for(d = 0; d < j; d++){ //
+                        board[i][j-d] = board[i][j-d-1]; //Push them down
+                    }
+                    while(1){
+                        aux_1 = (int) (rand()% (_colors)); //Generates a random number
+                        if( aux_1 != aux ){ //Check if the random number has the same color as the square, if not
+                            board[i][0] = aux_1; //Set the new dot to that random color
+                            break;
+                        }
+                    }
+                }
             }
-            board[i][0] = (int) (rand()% (_colors));
         }
     }
+
+    if(square == 1){
+        for(i = 0; i < board_pos_x; i++){
+            for(j = 0; j < board_pos_y; j++){
+                if( move[i][j] == aux){
+                    for(d = 0; d < j; d++){
+                        board[i][j-d] = board[i][j-d-1];
+                    }
+                    board[i][0] = (int) (rand()% (_colors));
+                }
+            }
+        }
     }
+
 }
 
 int square_detect(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOARD_POS], int move[MAX_BOARD_POS][MAX_BOARD_POS], int _colors, int pt_x, int pt_y){
