@@ -1,7 +1,7 @@
 /**
-* Intermediate project for the programming subejct
+* Intermediate project for the programming subeject
 * Project done by João Maria Janeiro Gonçalves da Silva
-* Integrated master in eletrical and electronical engineering in IST
+* Integrated master in electrical and computer engineering in IST
 * IST id: 190105
 */
 
