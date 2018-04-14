@@ -1,0 +1,17 @@
+# depslib dependency file v1.0
+1521831395 source:/home/jjaneiro/Documents/projeto_intermedio/main.c
+	<SDL2/SDL.h>
+	<SDL2/SDL_ttf.h>
+	<SDL2/SDL_image.h>
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+
+1523722526 source:/home/jjaneiro/Desktop/projeto_intermedio/main.c
+	<SDL2/SDL.h>
+	<SDL2/SDL_ttf.h>
+	<SDL2/SDL_image.h>
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+

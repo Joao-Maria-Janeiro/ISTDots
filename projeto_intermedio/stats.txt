@@ -1,0 +1,8 @@
+Username: joao
+
+Games: 3
+Losses: 3
+Victories: 0
+Game 1: Defeat with 1 moves
+Game 2: Defeat with 1 moves
+Game 3: Defeat with 0 moves
