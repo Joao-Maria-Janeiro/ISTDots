@@ -165,7 +165,15 @@ int main( void )
         {
             if( event.type == SDL_QUIT )
             {
-                    quit = 1;// quit !
+                if(game_on == 1){
+                    jogos[jogo] = 0;
+                    plays[jogo] = jogadas1 - jogadas;
+                    jogo ++;
+                    derrotas++;
+                }
+                quit = 1; // Closes the game
+                filecreate(jogos, jogo, username, plays, vitorias, derrotas);
+                jogo = 0;
             }
             else if ( event.type == SDL_KEYDOWN )
             {
@@ -365,7 +373,7 @@ void parameters(int *rows1, int *columns1, int *int_colors1, int pontos[MAX_BOAR
     }while(rows > 15 || rows < 5 || columns > 15 || columns < 5);
 
 
-do{
+    do{
         printf("\nQuantas cores quer no jogo: ");
         fgets(temp, STRING_SIZE, stdin);
         sscanf(temp, " %d", &int_colors);
@@ -384,7 +392,6 @@ do{
                 fgets(temp, STRING_SIZE, stdin);
                 sscanf(temp, "%d", &pontos[i]);
             }
-
     }
 
 
@@ -447,19 +454,19 @@ int evaluate_color(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX
     int aux = 9;
     int i, j, count1 = 0;
     for(i = 0; i < board_pos_x; i++){
-    for(j = 0; j < board_pos_y; j++){
-        if(move[i][j] != 7){
-            if( aux == 9 ){
-                aux = move[i][j]; //Gets the value of the color
+        for(j = 0; j < board_pos_y; j++){
+            if(move[i][j] != 7){
+                if( aux == 9 ){
+                    aux = move[i][j]; //Gets the value of the color
+                }
+                count1 ++;
+                if( move[i][j] != aux ){
+                    return -1;
+                }
             }
-            count1 ++;
-            if( move[i][j] != aux ){
-                return -1;
-            }
-        }
 
         }
-            }
+    }
             *count = count1;
             *color = aux;
             return 0;
@@ -474,16 +481,14 @@ int evaluate_color(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX
 int evaluate_pos(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX_BOARD_POS]){
     int i, j = 0;
     for(i = 0; i < board_pos_x; i++){
-    for(j = 0; j < board_pos_y; j++){
-        if(move[i][j] != 7){
-            if ( (move[i][j] == move[i+1][j+1] && move[i][j] != move[i+1][j] && move[i][j] != move[i-1][j] && move[i][j] != move[i][j+1] && move[i][j] != move[i][j-1]) || (move[i][j] == move[i+1][j-1] && move[i][j] != move[i+1][j] && move[i][j] != move[i-1][j] && move[i][j] != move[i][j+1] && move[i][j] != move[i][j-1]) || (move[i][j] == move[i-1][j+1] && move[i][j] != move[i+1][j] && move[i][j] != move[i-1][j] && move[i][j] != move[i][j+1] && move[i][j] != move[i][j-1]) || (move[i][j] == move[i-1][j-1] && move[i][j] != move[i+1][j] && move[i][j] != move[i-1][j] && move[i][j] != move[i][j+1] && move[i][j] != move[i][j-1])){
-                return -1;
+        for(j = 0; j < board_pos_y; j++){
+            if(move[i][j] != 7){
+                if ( (move[i][j] == move[i+1][j+1] && move[i][j] != move[i+1][j] && move[i][j] != move[i-1][j] && move[i][j] != move[i][j+1] && move[i][j] != move[i][j-1]) || (move[i][j] == move[i+1][j-1] && move[i][j] != move[i+1][j] && move[i][j] != move[i-1][j] && move[i][j] != move[i][j+1] && move[i][j] != move[i][j-1]) || (move[i][j] == move[i-1][j+1] && move[i][j] != move[i+1][j] && move[i][j] != move[i-1][j] && move[i][j] != move[i][j+1] && move[i][j] != move[i][j-1]) || (move[i][j] == move[i-1][j-1] && move[i][j] != move[i+1][j] && move[i][j] != move[i-1][j] && move[i][j] != move[i][j+1] && move[i][j] != move[i][j-1])){
+                    return -1;
+                }
             }
-
         }
-
-
-            }}
+    }
 
     return 0;
 }
@@ -506,11 +511,12 @@ void movedots(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOA
 
 
     for(i = 0; i < board_pos_x; i++){
-    for(j = 0; j < board_pos_y; j++){
-        if(move[i][j] != 7){
-            if( aux == 9 ){
-                aux = move[i][j];
-            }}
+        for(j = 0; j < board_pos_y; j++){
+            if(move[i][j] != 7){
+                if( aux == 9 ){
+                    aux = move[i][j];
+                }
+            }
         }
     }
 
@@ -595,11 +601,14 @@ void remove_same_color(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS
 
 
     for(i = 0; i < board_pos_x; i++){
-    for(j = 0; j < board_pos_y; j++){
-        if(move[i][j] != 7){
-            if( aux == 9 ){
-                aux = move[i][j];
-            }}}}
+        for(j = 0; j < board_pos_y; j++){
+            if(move[i][j] != 7){
+                if( aux == 9 ){
+                    aux = move[i][j];
+                }
+            }
+        }
+    }
 
     for (i = 0; i < board_pos_x; i++) {
         for (j = 0; j < board_pos_y; j++) {
@@ -663,24 +672,24 @@ void remove_inside_square( int mem[STRING_SIZE][STRING_SIZE], int mem_pos, int b
 
 
     for(i = minimum_x; i <= maximum_x; i++){
-    for(j = minimum_y; j <= maximum_y; j++){
-        if(board[i][j] == 0){
-            count_0_1++;
+        for(j = minimum_y; j <= maximum_y; j++){
+            if(board[i][j] == 0){
+                count_0_1++;
+            }
+            if(board[i][j] == 1){
+                count_1_1++;
+            }
+            if(board[i][j] == 2){
+                count_2_1++;
+            }
+            if(board[i][j] == 3){
+                count_3_1++;
+            }
+            if(board[i][j] == 4){
+                count_4_1++;
+            }
+            move[i][j] = color;
         }
-        if(board[i][j] == 1){
-            count_1_1++;
-        }
-        if(board[i][j] == 2){
-            count_2_1++;
-        }
-        if(board[i][j] == 3){
-            count_3_1++;
-        }
-        if(board[i][j] == 4){
-            count_4_1++;
-        }
-        move[i][j] = color;
-    }
     }
     *count_0 = count_0_1;
     *count_1 = count_1_1;
@@ -719,7 +728,6 @@ void filecreate(int jogos[STRING_SIZE], int jogo, char username[STRING_SIZE], in
         if(jogos[i] == 1){
             fprintf(f, "Game %d: Victory with %d moves\n", i+1, plays[i]);
         }
-        //fprintf(f, "Game %d: %d\n", i+1, jogos[i]);
     }
     fclose(f);
 }
@@ -812,29 +820,25 @@ int shuffle(int board[MAX_BOARD_POS][MAX_BOARD_POS], int board_pos_x, int board_
     int i, j = 0;
 
     for(i = 0; i < board_pos_x; i++){
-    for(j = 0; j < board_pos_y; j++){
-        if( i!= board_pos_x-1 && j != board_pos_y-1){
-            if(board[i][j] == board[i][j+1] || board[i][j] == board[i+1][j]){
-//                printf("don't Shuffle\n");
+        for(j = 0; j < board_pos_y; j++){
+            if( i!= board_pos_x-1 && j != board_pos_y-1){
+                if(board[i][j] == board[i][j+1] || board[i][j] == board[i+1][j]){
                     return 0;
+                }
             }
-        }
-        else if( i != board_pos_x-1 && j == board_pos_y-1){
-            if(board[i][j] == board[i+1][j]){
-//                printf("DON'T Shuffle\n");
+            else if( i != board_pos_x-1 && j == board_pos_y-1){
+                if(board[i][j] == board[i+1][j]){
                     return 0;
+                }
             }
-        }
-        else if(i == board_pos_x-1 && j != board_pos_y-1){
+            else if(i == board_pos_x-1 && j != board_pos_y-1){
                 if(board[i][j] == board[i][j+1]){
                     return 0;
                 }
+            }
         }
-
-    }}
-//    printf("Shuffle\n");
+    }
     return 1;
-//return 0;
 }
 
 /**
