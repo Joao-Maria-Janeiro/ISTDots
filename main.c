@@ -1,3 +1,10 @@
+/**
+* Intermediate project for the programming subejct
+* Project done by João Maria Janeiro Gonçalves da Silva
+* Integrated master in eletrical and electronical engineering in IST
+* IST id: 190105
+*/
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
@@ -118,6 +125,8 @@ int main( void )
     board_pos_x = 5;
     board_pos_y = 7;
 
+    srand(time(NULL));
+
 
    do{
     printf( "Whats your name? " );
@@ -163,14 +172,15 @@ int main( void )
                 switch ( event.key.keysym.sym )
                 {
                     case SDLK_n:
-                        if(game_on == 1){
-                            jogos[jogo] = 0;
+                        if(game_on == 1){ // If a game is active when you press 'n'
+                            jogos[jogo] = 0; // Sets a loss
                             plays[jogo] = jogadas1 - jogadas;
                             jogo ++;
                             derrotas++;
                         }
-                        game_board(board, board_pos_x, board_pos_y, int_colors);
-                        move_reset(board_pos_x, board_pos_y, move);
+                        game_board(board, board_pos_x, board_pos_y, int_colors); //Generates a new board
+                        move_reset(board_pos_x, board_pos_y, move); // Resets the move array
+                        //Restores all the parameters
                         board_pos_y = board_pos_y_1;
                         board_pos_x = board_pos_x_1;
                         int_colors = int_colors_1;
@@ -178,25 +188,31 @@ int main( void )
                         for( i = 0; i < MAX_BOARD_POS; i++){
                             pontos[i] = pontos1[i];
                         }
-                        game_on = 1;
+                        game_on = 1; // Starts a game
                         vitoria = 0;
                         derrota = 0;
                        break;
                     case SDLK_q:
-                        quit = 1;
+                        if(game_on == 1){
+                            jogos[jogo] = 0;
+                            plays[jogo] = jogadas1 - jogadas;
+                            jogo ++;
+                            derrotas++;
+                        }
+                        quit = 1; // Closes the game
                         filecreate(jogos, jogo, username, plays, vitorias, derrotas);
                         jogo = 0;
                         break;
                     case SDLK_u:
                         for(i= 0; i < board_pos_x; i++){
                             for(j= 0; j < board_pos_y; j++){
-                                board[i][j] = board_undo[i][j];
+                                board[i][j] = board_undo[i][j]; // Sets the board to the undo board saved in the last play
                             }
                         }
                         for( i = 0; i < MAX_BOARD_POS; i++){
-                            pontos[i] = pontos_undo[i];
+                            pontos[i] = pontos_undo[i]; // Sets the points to the points to the last play
                         }
-                        jogadas = jogadas_undo;
+                        jogadas = jogadas_undo; // Sets the moves to the moves to the last play
                         break;
                     default:
                         break;
@@ -212,11 +228,11 @@ int main( void )
                 lastYpos = 30;
                 for(i= 0; i < board_pos_x; i++){
                     for(j= 0; j < board_pos_y; j++){
-                        board_undo[i][j] = board[i][j];
+                        board_undo[i][j] = board[i][j]; // Saves the current board in the undo copy board so we can undo the next play
                     }
                 }
                 for( i = 0; i < MAX_BOARD_POS; i++){
-                    pontos_undo[i] = pontos[i];
+                    pontos_undo[i] = pontos[i]; // Saves the current player points
                 }
 
                 jogadas_undo = jogadas;
@@ -225,21 +241,21 @@ int main( void )
             {
                 ProcessMouseEvent(event.button.x, event.button.y, board_size_px, square_size_px, &pt_x, &pt_y);
                 printf("Button up: %d %d\n", pt_x, pt_y);
-                play = 2;
-                valid = evaluate_color(board_pos_x, board_pos_y, move, &count, &color);
+                play = 2; // Ends the current play
+                valid = evaluate_color(board_pos_x, board_pos_y, move, &count, &color); // Checks if all the selected dots had the same color and returns the color of the play and how many dots were selected
                 printf("Rebentou %d bolas\n", count);
-                valid_pos = evaluate_pos(board_pos_x, board_pos_y, move);
+                valid_pos = evaluate_pos(board_pos_x, board_pos_y, move); // Checks if the selected dots were not a diagonal
                 if(valid == 0 && count >=2 && valid_pos == 0){
                     jogadas --;
                     if ( square == 0 && validate != 1){
-                        remove_inside_square(mem, mem_pos, board, color, move, &count_0, &count_1, &count_2, &count_3, &count_4);
-                        remove_same_color(board_pos_x, board_pos_y, board, move, int_colors, &count1);
+                        remove_inside_square(mem, mem_pos, board, color, move, &count_0, &count_1, &count_2, &count_3, &count_4); // Removes all the dots inside the squares
+                        remove_same_color(board_pos_x, board_pos_y, board, move, int_colors, &count1); // Removes all the dots with the same color as the square
                         if(pontos[color] - count1 < 0){
-                            pontos[color] = 0;
+                            pontos[color] = 0; // If the points are negative set them to zero
                         }else{
-                            pontos[color] = pontos[color] - count1;
+                            pontos[color] = pontos[color] - count1; // If they are not negative set them to current points
                         }
-                        update_points(pontos, color, count_0, count_1, count_2, count_3, count_4);
+                        update_points(pontos, color, count_0, count_1, count_2, count_3, count_4); // Updates the player points
                     }
                     else{
                         if(pontos[color] - count < 0){
@@ -248,23 +264,23 @@ int main( void )
                             pontos[color] = pontos[color] - count;
                         }
                     }
-                    movedots(board_pos_x, board_pos_y, board, move, int_colors, color, square, validate);
+                    movedots(board_pos_x, board_pos_y, board, move, int_colors, color, square, validate); // After the play was validated moves all the selcted dots
                 }
                 vitoria = victory(pontos);
                 derrota = defeat(pontos, jogadas);
                 if(vitoria == 1){
-                    jogos[jogo] = 1;
-                    plays[jogo] = jogadas1 - jogadas;
+                    jogos[jogo] = 1; // Sets the current game to 1 in the "jogo" array which means the game was won
+                    plays[jogo] = jogadas1 - jogadas; //Stores the amount of moves the player did in each game
                     jogo ++;
                     vitorias++;
-                    game_on = 0;
+                    game_on = 0; // This means that when the win text is beeing displayed the game in not being played until the user presses 'n'
                 }
                 if(derrota == 1){
-                    jogos[jogo] = 0;
-                    plays[jogo] = jogadas1 - jogadas;
+                    jogos[jogo] = 0; // Sets the current game to 0 in the "jogo" array which means the game was lost
+                    plays[jogo] = jogadas1 - jogadas; //Stores the amount of moves the player did in each game
                     jogo ++;
                     derrotas++;
-                    game_on = 0;
+                    game_on = 0; // This means that when the lost text is beeing displayed the game in not being played until the user presses 'n'
                 }
                 move_reset(board_pos_x, board_pos_y, move);
                 mem_pos = 0;
@@ -275,24 +291,22 @@ int main( void )
             {
                 ProcessMouseEvent(event.button.x, event.button.y, board_size_px, square_size_px, &pt_x, &pt_y);
                 if( play == 1 ){
-                    if( lastXpos != pt_x || lastYpos != pt_y){
+                    if( lastXpos != pt_x || lastYpos != pt_y){ //So it only saves the current position one time
                         if(pt_x != -1){
                             square = square_detect(board_pos_x, board_pos_y, board, move, int_colors, pt_x, pt_y);
-                            move[pt_x][pt_y] = board[pt_x][pt_y];
+                            move[pt_x][pt_y] = board[pt_x][pt_y]; //Array that stores the move the player did, stores the color of each dot the player selected
                             SDL_RenderDrawLine(renderer, event.button.x, event.button.y, event.button.x+5, event.button.y +2);
                             SDL_RenderPresent(renderer);
-                            lastXpos = pt_x;
+                            lastXpos = pt_x; //Sets the last position to the current one so we can check if the next position is equal to the current one in the next cicle
                             lastYpos = pt_y;
-                            mem[mem_pos][0] = pt_x;
+                            mem[mem_pos][0] = pt_x; //Array that stores all the postions in a play
                             mem[mem_pos][1] = pt_y;
-                            validate = square_validate(mem, mem_pos);//Se for quadrado retorna 0
+                            validate = square_validate(mem, mem_pos);// Returns 0 if it's a square
                             mem_pos++;
                         }
                     }
 
                 }
-
-
             }
 
 
@@ -307,7 +321,7 @@ int main( void )
         RenderStats( renderer, serif, pontos, int_colors, jogadas);
         //Render game result
         render_squares(renderer, serif_big, vitoria, derrota);
-        //If shuffle is equal to one, render the shuffle text and generates a new random board
+        //If shuffle is equal to one, render the shuffle text and shuffles the board
         if(do_shuffle == 1){
             render_shuffle(renderer, serif_big);
             SDL_Delay(400);
@@ -398,7 +412,6 @@ do{
  */
 void game_board(int board[MAX_BOARD_POS][MAX_BOARD_POS], int _lines, int _col, int _colors){
     int i,j = 0;
-    srand(time(NULL));
 
     for(i = 0; i < _lines; i++){
         for(j = 0; j < _col; j++){
@@ -463,7 +476,7 @@ int evaluate_pos(int board_pos_x, int board_pos_y, int move[MAX_BOARD_POS][MAX_B
     for(i = 0; i < board_pos_x; i++){
     for(j = 0; j < board_pos_y; j++){
         if(move[i][j] != 7){
-            if ( move[i][j] == move[i+1][j+1] && move[i][j] != move[i+1][j] && move[i][j] != move[i-1][j] && move[i][j] != move[i][j+1] && move[i][j] != move[i][j-1] || move[i][j] == move[i+1][j-1] && move[i][j] != move[i+1][j] && move[i][j] != move[i-1][j] && move[i][j] != move[i][j+1] && move[i][j] != move[i][j-1] || move[i][j] == move[i-1][j+1] && move[i][j] != move[i+1][j] && move[i][j] != move[i-1][j] && move[i][j] != move[i][j+1] && move[i][j] != move[i][j-1] || move[i][j] == move[i-1][j-1] && move[i][j] != move[i+1][j] && move[i][j] != move[i-1][j] && move[i][j] != move[i][j+1] && move[i][j] != move[i][j-1]){
+            if ( (move[i][j] == move[i+1][j+1] && move[i][j] != move[i+1][j] && move[i][j] != move[i-1][j] && move[i][j] != move[i][j+1] && move[i][j] != move[i][j-1]) || (move[i][j] == move[i+1][j-1] && move[i][j] != move[i+1][j] && move[i][j] != move[i-1][j] && move[i][j] != move[i][j+1] && move[i][j] != move[i][j-1]) || (move[i][j] == move[i-1][j+1] && move[i][j] != move[i+1][j] && move[i][j] != move[i-1][j] && move[i][j] != move[i][j+1] && move[i][j] != move[i][j-1]) || (move[i][j] == move[i-1][j-1] && move[i][j] != move[i+1][j] && move[i][j] != move[i-1][j] && move[i][j] != move[i][j+1] && move[i][j] != move[i][j-1])){
                 return -1;
             }
 
@@ -490,7 +503,7 @@ void movedots(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS][MAX_BOA
     int i, j,d = 0;
     int aux = 9;
     int aux_1 = 0;
-    srand(time(NULL));
+
 
     for(i = 0; i < board_pos_x; i++){
     for(j = 0; j < board_pos_y; j++){
@@ -579,7 +592,7 @@ void remove_same_color(int board_pos_x, int board_pos_y, int board[MAX_BOARD_POS
     int i, j = 0;
     int aux = 9;
     int count1 = 0;
-    srand(time(NULL));
+
 
     for(i = 0; i < board_pos_x; i++){
     for(j = 0; j < board_pos_y; j++){
@@ -895,7 +908,7 @@ void update_points(int pontos[MAX_BOARD_POS], int color, int count_0, int count_
 void do_shuffle_do(int board[MAX_BOARD_POS][MAX_BOARD_POS], int _lines, int _col, int _colors){
 
     int i,j, aux = 0;
-    srand(time(NULL));
+
     int color0 = 0;
     int color1 = 0;
     int color2 = 0;
