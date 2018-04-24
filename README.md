@@ -9,11 +9,19 @@ Intermediate project for the programming course of electrical and computer engin
 * When the key 'q' is pressed the game will close and generate a file with all the scores from that game
 * When the key 'n' is pressed it will start a new game
 
+## What you need to install
+* SDL2
+* SDL2_image
+* SDL2_ttf
+
+## For Ubuntu simply run:
+```
+$ sudo apt-get install libsdl2-dev
+$ sudo apt-get install libsdl2-image-dev
+$ sudo apt-get install libsdl2-ttf-dev
+```
+
 ## To run the file run the command:
 ```
 $ gcc ISTDots.c -g -I/usr/local/include -Wall -pedantic -std=c99 -L/usr/local/lib -lm -lSDL2 -lSDL2_ttf -lSDL2_image -o ISTDots
 ```
-###What you need to install
-*SDL2
-*SDL2_image
-*SDL2_ttf
