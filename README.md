@@ -23,5 +23,5 @@ $ sudo apt-get install libsdl2-ttf-dev
 
 ## To run the file run the command:
 ```
-$ gcc ISTDots.c -g -I/usr/local/include -Wall -pedantic -std=c99 -L/usr/local/lib -lm -lSDL2 -lSDL2_ttf -lSDL2_image -o ISTDots
+$ gcc main.c -g -I/usr/local/include -Wall -pedantic -std=c99 -L/usr/local/lib -lm -lSDL2 -lSDL2_ttf -lSDL2_image -o ISTDots
 ```
