@@ -8,6 +8,7 @@ Intermediate project for the programming course of electrical and computer engin
 * When the key 'u' is pressed it will undo the current play and return to the last play
 * When the key 'q' is pressed the game will close and generate a file with all the scores from that game
 * When the key 'n' is pressed it will start a new game
+* If no more moves are available, the colors on the board will shuffle randomly
 
 ## What you need to install
 * SDL2
