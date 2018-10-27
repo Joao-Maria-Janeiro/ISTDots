@@ -1,4 +1,4 @@
-Intermediate project for the programming course of electrical and computer engineering first year second semester
+Intermediate project for the programming course of electrical and computer engineering first year second semester where I got a score of 20/20
 ## Features
 * You can only select dots with the same color
 * Diagonals are not accepted
